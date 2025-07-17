@@ -3,8 +3,10 @@ package com.example.mobilechallegeandroid
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.runtime.*
 import androidx.navigation.compose.*
 import com.example.mobilechallegeandroid.ui.CityListScreen
+import com.example.mobilechallegeandroid.ui.CityMapScreen
 import com.example.mobilechallegeandroid.ui.CityListViewModel
 import com.example.mobilechallegeandroid.data.CityRepositoryImpl
 
@@ -20,6 +22,16 @@ class MainActivity : ComponentActivity() {
                     CityListScreen(viewModel = viewModel, onCityClick = { cityId ->
                         navController.navigate("cityDetail/$cityId")
                     })
+                }
+                composable("cityDetail/{cityId}") { backStackEntry ->
+                    val cityId = backStackEntry.arguments?.getString("cityId")?.toLongOrNull()
+                    val cities by viewModel.cities.collectAsState()
+                    val city = cities.find { it.id == cityId }
+                    if (city != null) {
+                        CityMapScreen(city, onBack = {
+                            navController.navigateUp()
+                        })
+                    }
                 }
             }
         }
