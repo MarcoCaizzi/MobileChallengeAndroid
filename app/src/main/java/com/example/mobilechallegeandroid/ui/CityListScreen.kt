@@ -19,7 +19,9 @@ import com.example.mobilechallegeandroid.data.City
 import com.example.mobilechallegeandroid.data.Coord
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 
 @Preview(
     showBackground = true,
@@ -37,25 +39,62 @@ fun CityListScreenPreview() {
         cities = cities,
         onFilterChange = {},
         onCityClick = {},
-        onFavoriteClick = {}
+        onFavoriteClick = {},
+        onDetailsClick = { city ->
+            // Placeholder for navigation action
+            println("Navigate to details of ${city.name}")
+        }
     )
 }
 
 @Composable
 fun CityListScreen(
     viewModel: CityListViewModel,
-    onCityClick: (Long) -> Unit
+    onCityClick: (Long) -> Unit,
+    navController: NavHostController
 ) {
     val filter by viewModel.filter.collectAsState()
     val cities by viewModel.cities.collectAsState()
+    val configuration = LocalConfiguration.current
+    val isLandscape =
+        configuration.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE
 
-    CityListContent(
-        filter = filter,
-        cities = cities,
-        onFilterChange = viewModel::onFilterChange,
-        onCityClick = onCityClick,
-        onFavoriteClick = viewModel::onFavoriteClick
-    )
+    var selectedCity by remember(cities) { mutableStateOf(cities.firstOrNull()) }
+
+    if (isLandscape) {
+        Row(modifier = Modifier.fillMaxSize()) {
+            Box(modifier = Modifier.weight(1f)) {
+                CityListContent(
+                    filter = filter,
+                    cities = cities,
+                    onFilterChange = viewModel::onFilterChange,
+                    onCityClick = { cityId ->
+                        selectedCity = cities.find { it.id == cityId }
+                    },
+                    onFavoriteClick = viewModel::onFavoriteClick,
+                    onDetailsClick = { city ->
+                        navController.navigate("cityData/${city.id}")
+                    }
+                )
+            }
+            Box(modifier = Modifier.weight(1f)) {
+                selectedCity?.let { city ->
+                    CityMapScreen(city, onBack = { })
+                }
+            }
+        }
+    } else {
+        CityListContent(
+            filter = filter,
+            cities = cities,
+            onFilterChange = viewModel::onFilterChange,
+            onCityClick = onCityClick,
+            onFavoriteClick = viewModel::onFavoriteClick,
+            onDetailsClick = { city ->
+                navController.navigate("cityData/${city.id}")
+            }
+        )
+    }
 }
 
 @Composable
@@ -64,8 +103,13 @@ fun CityListContent(
     cities: List<City>,
     onFilterChange: (String) -> Unit,
     onCityClick: (Long) -> Unit,
-    onFavoriteClick: (Long) -> Unit
+    onFavoriteClick: (Long) -> Unit,
+    onDetailsClick: (City) -> Unit,
 ) {
+    val configuration = LocalConfiguration.current
+    val isLandscape =
+        configuration.orientation == android.content.res.Configuration.ORIENTATION_PORTRAIT
+
     Column(modifier = Modifier.padding(8.dp)) {
         OutlinedTextField(
             value = filter,
@@ -101,6 +145,11 @@ fun CityListContent(
                             Icon(Icons.Filled.Favorite, contentDescription = "Favorite")
                         } else {
                             Icon(Icons.Outlined.FavoriteBorder, contentDescription = "Not favorite")
+                        }
+                    }
+                    if (isLandscape) {
+                        Button(onClick = { onDetailsClick(city) }) {
+                            Text("Details")
                         }
                     }
                 }
