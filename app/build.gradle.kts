@@ -87,4 +87,6 @@ dependencies {
     // Coroutines
     implementation(libs.maps.compose)
     implementation(libs.play.services.maps)
+
+    implementation(libs.okhttp)
 }
