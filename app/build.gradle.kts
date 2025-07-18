@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -6,20 +8,28 @@ plugins {
 
 android {
     namespace = "com.example.mobilechallegeandroid"
-    compileSdk = 35
+    compileSdk = 36
 
     buildFeatures {
         compose = true
     }
 
+    // Leer la API Key desde local.properties
+    val properties = Properties()
+    properties.load(rootProject.file("local.properties").inputStream())
+    val apiKey = properties["MAPS_API_KEY"] as String
+
     defaultConfig {
         applicationId = "com.example.mobilechallegeandroid"
         minSdk = 24
-        targetSdk = 35
+        targetSdk = 36
         versionCode = 1
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        // Inyectar la clave como recurso
+        resValue("string", "google_maps_key", apiKey)
     }
 
     buildTypes {
@@ -73,4 +83,8 @@ dependencies {
 
     // JSON
     implementation(libs.gson)
+
+    // Coroutines
+    implementation(libs.maps.compose)
+    implementation(libs.play.services.maps)
 }
