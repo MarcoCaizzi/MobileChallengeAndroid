@@ -1,0 +1,29 @@
+[
+  {
+    "country": "UA",
+    "name": "Hurzuf",
+    "_id": 707860,
+    "coord": {
+      "lon": 34.275454,
+      "lat": 44.542169
+    }
+  },
+  {
+    "country": "RU",
+    "name": "Novinki",
+    "_id": 519188,
+    "coord": {
+      "lon": 37.666668,
+      "lat": 55.683334
+    }
+  },
+  {
+    "country": "NP",
+    "name": "Gorkhā",
+    "_id": 1283378,
+    "coord": {
+      "lon": 84.633331,
+      "lat": 28
+    }
+  }
+]
