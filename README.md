@@ -5,8 +5,8 @@
 - [ OK ] Optimize search for speed (app loading time is not important).
 - [ OK ] Case-insensitive search.
 - [ OK ] Display cities in a scrollable list, sorted alphabetically (city, country).
-- [ ] Responsive UI while typing the filter.
-- [ ] Update the list with every change in the filter.
+- [ OK ] Responsive UI while typing the filter.
+- [ OK ] Update the list with every change in the filter.
 - [ ] Allow filtering only favorites.
 - [ ] Each city cell shows name, country, and coordinates.
 - [ ] Allow marking/unmarking as favorite.
