@@ -1,4 +1,4 @@
-package com.example.mobilechallegeandroid.data
+package com.example.mobilechallengeandroid.data
 
 data class Coord(
     val lon: Double,

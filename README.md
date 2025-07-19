@@ -1,6 +1,6 @@
-# MobileChallegeAndroid
+# MobileChallengeAndroid
 
-- [ ] Download the city list from the provided gist.
+- [ OK ] Download the city list from the provided gist.
 - [ ] Filter results by prefix, following the specified definition.
 - [ ] Optimize search for speed (app loading time is not important).
 - [ ] Case-insensitive search.

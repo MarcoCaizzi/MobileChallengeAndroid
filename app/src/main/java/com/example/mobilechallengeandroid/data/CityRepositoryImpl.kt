@@ -1,4 +1,4 @@
-package com.example.mobilechallegeandroid.data
+package com.example.mobilechallengeandroid.data
 
 import android.content.Context
 import com.google.gson.Gson

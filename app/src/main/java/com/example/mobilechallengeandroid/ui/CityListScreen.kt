@@ -1,4 +1,4 @@
-package com.example.mobilechallegeandroid.ui
+package com.example.mobilechallengeandroid.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -15,8 +15,8 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.ui.tooling.preview.Preview
-import com.example.mobilechallegeandroid.data.City
-import com.example.mobilechallegeandroid.data.Coord
+import com.example.mobilechallengeandroid.data.City
+import com.example.mobilechallengeandroid.data.Coord
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration

@@ -1,15 +1,15 @@
-package com.example.mobilechallegeandroid
+package com.example.mobilechallengeandroid
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.*
 import androidx.navigation.compose.*
-import com.example.mobilechallegeandroid.ui.CityListScreen
-import com.example.mobilechallegeandroid.ui.CityMapScreen
-import com.example.mobilechallegeandroid.ui.CityListViewModel
-import com.example.mobilechallegeandroid.data.CityRepositoryImpl
-import com.example.mobilechallegeandroid.ui.CityDetailScreen
+import com.example.mobilechallengeandroid.ui.CityListScreen
+import com.example.mobilechallengeandroid.ui.CityMapScreen
+import com.example.mobilechallengeandroid.ui.CityListViewModel
+import com.example.mobilechallengeandroid.data.CityRepositoryImpl
+import com.example.mobilechallengeandroid.ui.CityDetailScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

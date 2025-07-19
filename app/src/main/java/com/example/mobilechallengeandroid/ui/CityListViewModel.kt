@@ -1,10 +1,10 @@
-package com.example.mobilechallegeandroid.ui
+package com.example.mobilechallengeandroid.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.mobilechallegeandroid.data.City
-import com.example.mobilechallegeandroid.data.CityRepository
-import com.example.mobilechallegeandroid.data.CityRepositoryImpl
+import com.example.mobilechallengeandroid.data.City
+import com.example.mobilechallengeandroid.data.CityRepository
+import com.example.mobilechallengeandroid.data.CityRepositoryImpl
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 

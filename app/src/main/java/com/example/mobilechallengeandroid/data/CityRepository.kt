@@ -1,4 +1,4 @@
-package com.example.mobilechallegeandroid.data
+package com.example.mobilechallengeandroid.data
 
 interface CityRepository {
     suspend fun getFavorites(): List<City>

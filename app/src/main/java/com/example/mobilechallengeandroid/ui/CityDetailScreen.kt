@@ -1,4 +1,4 @@
-package com.example.mobilechallegeandroid.ui
+package com.example.mobilechallengeandroid.ui
 
 import androidx.compose.runtime.Composable
 import androidx.compose.material3.*
@@ -7,7 +7,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.example.mobilechallegeandroid.data.City
+import com.example.mobilechallengeandroid.data.City
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

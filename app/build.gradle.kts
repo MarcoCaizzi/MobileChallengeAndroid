@@ -7,7 +7,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.mobilechallegeandroid"
+    namespace = "com.example.mobilechallengeandroid"
     compileSdk = 36
 
     buildFeatures {
@@ -20,7 +20,7 @@ android {
     val apiKey = properties["MAPS_API_KEY"] as String
 
     defaultConfig {
-        applicationId = "com.example.mobilechallegeandroid"
+        applicationId = "com.example.mobilechallengeandroid"
         minSdk = 24
         targetSdk = 36
         versionCode = 1

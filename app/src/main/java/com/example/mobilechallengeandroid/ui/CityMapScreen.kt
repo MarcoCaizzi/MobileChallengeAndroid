@@ -1,4 +1,4 @@
-package com.example.mobilechallegeandroid.ui
+package com.example.mobilechallengeandroid.ui
 
 import android.content.res.Configuration
 import androidx.compose.runtime.Composable
@@ -7,7 +7,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.ui.Modifier
-import com.example.mobilechallegeandroid.data.City
+import com.example.mobilechallengeandroid.data.City
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.ui.platform.LocalConfiguration
 import com.google.android.gms.maps.model.CameraPosition
