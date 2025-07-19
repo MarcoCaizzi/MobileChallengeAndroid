@@ -34,11 +34,13 @@ class CityListViewModel(
     fun onFilterChange(newFilter: String) {
         _filter.value = newFilter
         val prefix = newFilter.trim().lowercase()
-        _cities.value = if (prefix.isEmpty()) {
+        val filtered = if (prefix.isEmpty()) {
             allCities
         } else {
             cityTrie?.search(prefix) ?: emptyList()
         }
+        _cities.value =
+            filtered.sortedWith(compareBy({ it.name.lowercase() }, { it.country.lowercase() }))
     }
 
     fun onFavoriteClick(cityId: Long) {
@@ -49,11 +51,13 @@ class CityListViewModel(
                 allCities.forEach { insert(it) }
             }
             val prefix = _filter.value.trim().lowercase()
-            _cities.value = if (prefix.isEmpty()) {
+            val filtered = if (prefix.isEmpty()) {
                 allCities
             } else {
                 cityTrie?.search(prefix) ?: emptyList()
             }
+            _cities.value =
+                filtered.sortedWith(compareBy({ it.name.lowercase() }, { it.country.lowercase() }))
         }
     }
 }

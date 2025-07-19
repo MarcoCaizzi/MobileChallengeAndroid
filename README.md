@@ -4,7 +4,7 @@
 - [ OK ] Filter results by prefix, following the specified definition.
 - [ OK ] Optimize search for speed (app loading time is not important).
 - [ OK ] Case-insensitive search.
-- [ ] Display cities in a scrollable list, sorted alphabetically (city, country).
+- [ OK ] Display cities in a scrollable list, sorted alphabetically (city, country).
 - [ ] Responsive UI while typing the filter.
 - [ ] Update the list with every change in the filter.
 - [ ] Allow filtering only favorites.

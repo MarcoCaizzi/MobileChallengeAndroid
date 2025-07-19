@@ -56,7 +56,7 @@ class CityRepositoryImpl(private val context: Context) : CityRepository {
                 coord = Coord(it.coord.lon, it.coord.lat),
                 isFavorite = favorites.contains(it._id)
             )
-        }
+        }.sortedWith(compareBy({ it.name.lowercase() }, { it.country.lowercase() }))
         cities
     }
 
