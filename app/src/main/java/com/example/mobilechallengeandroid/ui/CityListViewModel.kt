@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.mobilechallengeandroid.data.City
 import com.example.mobilechallengeandroid.data.CityRepository
 import com.example.mobilechallengeandroid.data.CityRepositoryImpl
+import com.example.mobilechallengeandroid.data.CityTrie
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
@@ -17,27 +18,41 @@ class CityListViewModel(
 
     private val _cities = MutableStateFlow<List<City>>(emptyList())
     val cities: StateFlow<List<City>> = _cities
+    private var allCities: List<City> = emptyList()
+    private var cityTrie: CityTrie? = null
 
     init {
         viewModelScope.launch {
-            val allCities = repository.downloadAndFetchCities(CityRepositoryImpl.CITIES_JSON_URL)
+            allCities = repository.downloadAndFetchCities(CityRepositoryImpl.CITIES_JSON_URL)
+            cityTrie = CityTrie().apply {
+                allCities.forEach { insert(it) }
+            }
             _cities.value = allCities
         }
     }
 
     fun onFilterChange(newFilter: String) {
         _filter.value = newFilter
-        _cities.value = _cities.value.filter {
-            it.name.lowercase().startsWith(newFilter.lowercase())
+        val prefix = newFilter.trim().lowercase()
+        _cities.value = if (prefix.isEmpty()) {
+            allCities
+        } else {
+            cityTrie?.search(prefix) ?: emptyList()
         }
     }
 
     fun onFavoriteClick(cityId: Long) {
         viewModelScope.launch {
             repository.toggleFavorite(cityId)
-            val allCities = repository.downloadAndFetchCities(CityRepositoryImpl.CITIES_JSON_URL)
-            _cities.value = allCities.filter {
-                it.name.lowercase().startsWith(_filter.value.lowercase())
+            allCities = repository.downloadAndFetchCities(CityRepositoryImpl.CITIES_JSON_URL)
+            cityTrie = CityTrie().apply {
+                allCities.forEach { insert(it) }
+            }
+            val prefix = _filter.value.trim().lowercase()
+            _cities.value = if (prefix.isEmpty()) {
+                allCities
+            } else {
+                cityTrie?.search(prefix) ?: emptyList()
             }
         }
     }

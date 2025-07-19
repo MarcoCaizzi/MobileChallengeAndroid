@@ -1,9 +1,9 @@
 # MobileChallengeAndroid
 
 - [ OK ] Download the city list from the provided gist.
-- [ ] Filter results by prefix, following the specified definition.
-- [ ] Optimize search for speed (app loading time is not important).
-- [ ] Case-insensitive search.
+- [ OK ] Filter results by prefix, following the specified definition.
+- [ OK ] Optimize search for speed (app loading time is not important).
+- [ OK ] Case-insensitive search.
 - [ ] Display cities in a scrollable list, sorted alphabetically (city, country).
 - [ ] Responsive UI while typing the filter.
 - [ ] Update the list with every change in the filter.
