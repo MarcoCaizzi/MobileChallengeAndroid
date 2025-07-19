@@ -31,17 +31,18 @@ import androidx.navigation.NavHostController
 @Composable
 fun CityListScreenPreview() {
     val cities = listOf(
-        City(1, "Madrid", "ES", Coord(-3.7038, 40.4168), false),
-        City(2, "Paris", "FR", Coord(2.3522, 48.8566), true)
+        City(1, "Madrid", "ES", Coord(-3.7038, 40.4168)),
+        City(2, "Paris", "FR", Coord(2.3522, 48.8566))
     )
+    val favoriteIds = setOf<Long>(1)
     CityListContent(
         filter = "",
         cities = cities,
+        favoriteIds = favoriteIds,
         onFilterChange = {},
         onCityClick = {},
         onFavoriteClick = {},
         onDetailsClick = { city ->
-            // Placeholder for navigation action
             println("Navigate to details of ${city.name}")
         }
     )
@@ -55,6 +56,7 @@ fun CityListScreen(
 ) {
     val filter by viewModel.filter.collectAsState()
     val cities by viewModel.cities.collectAsState()
+    val favoriteIds by viewModel.favoriteIds.collectAsState()
     val configuration = LocalConfiguration.current
     val isLandscape =
         configuration.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE
@@ -67,6 +69,7 @@ fun CityListScreen(
                 CityListContent(
                     filter = filter,
                     cities = cities,
+                    favoriteIds = favoriteIds,
                     onFilterChange = viewModel::onFilterChange,
                     onCityClick = { cityId ->
                         selectedCity = cities.find { it.id == cityId }
@@ -87,6 +90,7 @@ fun CityListScreen(
         CityListContent(
             filter = filter,
             cities = cities,
+            favoriteIds = favoriteIds,
             onFilterChange = viewModel::onFilterChange,
             onCityClick = onCityClick,
             onFavoriteClick = viewModel::onFavoriteClick,
@@ -97,18 +101,18 @@ fun CityListScreen(
     }
 }
 
+
 @Composable
 fun CityListContent(
     filter: String,
     cities: List<City>,
+    favoriteIds: Set<Long>,
     onFilterChange: (String) -> Unit,
     onCityClick: (Long) -> Unit,
     onFavoriteClick: (Long) -> Unit,
     onDetailsClick: (City) -> Unit,
 ) {
     val configuration = LocalConfiguration.current
-    val isLandscape =
-        configuration.orientation == android.content.res.Configuration.ORIENTATION_PORTRAIT
 
     Column(modifier = Modifier.padding(8.dp)) {
         OutlinedTextField(
@@ -124,11 +128,11 @@ fun CityListContent(
         Spacer(modifier = Modifier.height(16.dp))
         LazyColumn(modifier = Modifier.fillMaxSize()) {
             itemsIndexed(cities) { index, city ->
-                val bgColor = if (index % 2 == 0) Color.White else Color(0xFFCBCACA)
+                val isFavorite = favoriteIds.contains(city.id)
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(bgColor)
+                        .background(if (index % 2 == 0) Color.White else Color(0xFFCBCACA))
                         .padding(vertical = 8.dp)
                         .clickable { onCityClick(city.id) },
                     horizontalArrangement = Arrangement.SpaceBetween
@@ -141,15 +145,10 @@ fun CityListContent(
                         Text("${city.name}, ${city.country}", fontSize = 20.sp)
                     }
                     IconButton(onClick = { onFavoriteClick(city.id) }) {
-                        if (city.isFavorite) {
+                        if (isFavorite) {
                             Icon(Icons.Filled.Favorite, contentDescription = "Favorite")
                         } else {
                             Icon(Icons.Outlined.FavoriteBorder, contentDescription = "Not favorite")
-                        }
-                    }
-                    if (isLandscape) {
-                        Button(onClick = { onDetailsClick(city) }) {
-                            Text("Details")
                         }
                     }
                 }

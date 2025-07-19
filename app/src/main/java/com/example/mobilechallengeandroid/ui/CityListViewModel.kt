@@ -20,6 +20,8 @@ class CityListViewModel(
     val cities: StateFlow<List<City>> = _cities
     private var allCities: List<City> = emptyList()
     private var cityTrie: CityTrie? = null
+    private val _favoriteIds = MutableStateFlow<Set<Long>>(emptySet())
+    val favoriteIds: StateFlow<Set<Long>> = _favoriteIds
 
     init {
         viewModelScope.launch {
@@ -28,6 +30,7 @@ class CityListViewModel(
                 allCities.forEach { insert(it) }
             }
             _cities.value = allCities
+            _favoriteIds.value = repository.getFavoriteIds()
         }
     }
 
@@ -46,18 +49,7 @@ class CityListViewModel(
     fun onFavoriteClick(cityId: Long) {
         viewModelScope.launch {
             repository.toggleFavorite(cityId)
-            allCities = repository.downloadAndFetchCities(CityRepositoryImpl.CITIES_JSON_URL)
-            cityTrie = CityTrie().apply {
-                allCities.forEach { insert(it) }
-            }
-            val prefix = _filter.value.trim().lowercase()
-            val filtered = if (prefix.isEmpty()) {
-                allCities
-            } else {
-                cityTrie?.search(prefix) ?: emptyList()
-            }
-            _cities.value =
-                filtered.sortedWith(compareBy({ it.name.lowercase() }, { it.country.lowercase() }))
+            _favoriteIds.value = repository.getFavoriteIds()
         }
     }
 }

@@ -9,13 +9,12 @@
 - [ OK ] Update the list with every change in the filter.
 - [ ] Allow filtering only favorites.
 - [ ] Each city cell shows name, country, and coordinates.
-- [ ] Allow marking/unmarking as favorite.
-- [ ] On tap, navigate the map to the city coordinates.
+- [ OK ] Allow marking/unmarking as favorite.
+- [ OK ] On tap, navigate the map to the city coordinates.
 - [ ] Button to open a city information screen.
 - [ ] Create an information screen with additional data.
 - [ ] Organize information for best user experience.
-- [ ] Dynamic UI: separate screens in portrait, single screen in landscape.
-- [ ] Allow users to select favorite cities.
-- [ ] Remember favorites between app launches.
+- [ OK ] Dynamic UI: separate screens in portrait, single screen in landscape
+- [ OK ] Remember favorites between app launches.
 - [ ] Provide unit tests for the search algorithm (including invalid inputs).
 - [ ] Provide UI/unit tests for implemented screens.
