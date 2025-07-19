@@ -8,7 +8,7 @@
 - [ OK ] Responsive UI while typing the filter.
 - [ OK ] Update the list with every change in the filter.
 - [ OK ] Allow filtering only favorites.
-- [ ] Each city cell shows name, country, and coordinates.
+- [ OK ] Each city cell shows name, country, and coordinates.
 - [ OK ] Allow marking/unmarking as favorite.
 - [ OK ] On tap, navigate the map to the city coordinates.
 - [ ] Button to open a city information screen.

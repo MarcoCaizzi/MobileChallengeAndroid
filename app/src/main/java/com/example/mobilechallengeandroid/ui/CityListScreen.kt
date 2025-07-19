@@ -154,12 +154,13 @@ fun CityListContent(
                         .clickable { onCityClick(city.id) },
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Box(
+                    Column(
                         modifier = Modifier
                             .weight(1f)
                             .padding(start = 24.dp, end = 16.dp, top = 8.dp, bottom = 8.dp)
                     ) {
                         Text("${city.name}, ${city.country}", fontSize = 20.sp)
+                        Text("Lat: ${city.coord.lat}, Lon: ${city.coord.lon}", fontSize = 14.sp, color = Color.Gray)
                     }
                     IconButton(onClick = { onFavoriteClick(city.id) }) {
                         if (isFavorite) {
