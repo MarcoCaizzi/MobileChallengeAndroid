@@ -18,10 +18,15 @@ class CityListViewModel(
 
     private val _cities = MutableStateFlow<List<City>>(emptyList())
     val cities: StateFlow<List<City>> = _cities
+
     private var allCities: List<City> = emptyList()
     private var cityTrie: CityTrie? = null
+
     private val _favoriteIds = MutableStateFlow<Set<Long>>(emptySet())
     val favoriteIds: StateFlow<Set<Long>> = _favoriteIds
+
+    private val _showOnlyFavorites = MutableStateFlow(false)
+    val showOnlyFavorites: StateFlow<Boolean> = _showOnlyFavorites
 
     init {
         viewModelScope.launch {
@@ -29,27 +34,41 @@ class CityListViewModel(
             cityTrie = CityTrie().apply {
                 allCities.forEach { insert(it) }
             }
-            _cities.value = allCities
             _favoriteIds.value = repository.getFavoriteIds()
+            updateCities()
         }
     }
 
-    fun onFilterChange(newFilter: String) {
-        _filter.value = newFilter
-        val prefix = newFilter.trim().lowercase()
+    fun onShowOnlyFavoritesChange(show: Boolean) {
+        _showOnlyFavorites.value = show
+        updateCities()
+    }
+
+    private fun updateCities() {
+        val prefix = _filter.value.trim().lowercase()
         val filtered = if (prefix.isEmpty()) {
             allCities
         } else {
             cityTrie?.search(prefix) ?: emptyList()
         }
-        _cities.value =
-            filtered.sortedWith(compareBy({ it.name.lowercase() }, { it.country.lowercase() }))
+        val result = if (_showOnlyFavorites.value) {
+            filtered.filter { _favoriteIds.value.contains(it.id) }
+        } else {
+            filtered
+        }
+        _cities.value = result.sortedWith(compareBy({ it.name.lowercase() }, { it.country.lowercase() }))
+    }
+
+    fun onFilterChange(newFilter: String) {
+        _filter.value = newFilter
+        updateCities()
     }
 
     fun onFavoriteClick(cityId: Long) {
         viewModelScope.launch {
             repository.toggleFavorite(cityId)
             _favoriteIds.value = repository.getFavoriteIds()
+            updateCities()
         }
     }
 }

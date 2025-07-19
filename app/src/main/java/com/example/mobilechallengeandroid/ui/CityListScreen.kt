@@ -22,6 +22,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import androidx.compose.ui.Alignment
 
 @Preview(
     showBackground = true,
@@ -39,6 +40,8 @@ fun CityListScreenPreview() {
         filter = "",
         cities = cities,
         favoriteIds = favoriteIds,
+        showOnlyFavorites = false,
+        onShowOnlyFavoritesChange = {},
         onFilterChange = {},
         onCityClick = {},
         onFavoriteClick = {},
@@ -57,6 +60,7 @@ fun CityListScreen(
     val filter by viewModel.filter.collectAsState()
     val cities by viewModel.cities.collectAsState()
     val favoriteIds by viewModel.favoriteIds.collectAsState()
+    val showOnlyFavorites by viewModel.showOnlyFavorites.collectAsState()
     val configuration = LocalConfiguration.current
     val isLandscape =
         configuration.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE
@@ -70,6 +74,8 @@ fun CityListScreen(
                     filter = filter,
                     cities = cities,
                     favoriteIds = favoriteIds,
+                    showOnlyFavorites = showOnlyFavorites,
+                    onShowOnlyFavoritesChange = viewModel::onShowOnlyFavoritesChange,
                     onFilterChange = viewModel::onFilterChange,
                     onCityClick = { cityId ->
                         selectedCity = cities.find { it.id == cityId }
@@ -91,6 +97,8 @@ fun CityListScreen(
             filter = filter,
             cities = cities,
             favoriteIds = favoriteIds,
+            showOnlyFavorites = showOnlyFavorites,
+            onShowOnlyFavoritesChange = viewModel::onShowOnlyFavoritesChange,
             onFilterChange = viewModel::onFilterChange,
             onCityClick = onCityClick,
             onFavoriteClick = viewModel::onFavoriteClick,
@@ -101,12 +109,13 @@ fun CityListScreen(
     }
 }
 
-
 @Composable
 fun CityListContent(
     filter: String,
     cities: List<City>,
     favoriteIds: Set<Long>,
+    showOnlyFavorites: Boolean,
+    onShowOnlyFavoritesChange: (Boolean) -> Unit,
     onFilterChange: (String) -> Unit,
     onCityClick: (Long) -> Unit,
     onFavoriteClick: (Long) -> Unit,
@@ -115,16 +124,24 @@ fun CityListContent(
     val configuration = LocalConfiguration.current
 
     Column(modifier = Modifier.padding(8.dp)) {
-        OutlinedTextField(
-            value = filter,
-            onValueChange = onFilterChange,
-            label = { Text("filter") },
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(25.dp),
-            leadingIcon = {
-                Icon(Icons.Filled.Search, contentDescription = "filter_icon")
-            }
-        )
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            OutlinedTextField(
+                value = filter,
+                onValueChange = onFilterChange,
+                label = { Text("filter") },
+                modifier = Modifier.weight(1f),
+                shape = RoundedCornerShape(25.dp),
+                leadingIcon = {
+                    Icon(Icons.Filled.Search, contentDescription = "filter_icon")
+                }
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Checkbox(
+                checked = showOnlyFavorites,
+                onCheckedChange = onShowOnlyFavoritesChange
+            )
+            Text("Solo favoritos")
+        }
         Spacer(modifier = Modifier.height(16.dp))
         LazyColumn(modifier = Modifier.fillMaxSize()) {
             itemsIndexed(cities) { index, city ->
