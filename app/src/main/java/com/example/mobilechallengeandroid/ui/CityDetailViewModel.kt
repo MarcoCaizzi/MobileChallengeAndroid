@@ -21,11 +21,16 @@ class CityDetailViewModel(private val repository: CityRepository) : ViewModel() 
 
     fun loadWeather(city: City) {
         viewModelScope.launch {
+            _weather.value = null
+            (temperatureCelsius as MutableStateFlow).value = null
+            (feelsLikeCelsius as MutableStateFlow).value = null
+            (temperatureUnit as MutableStateFlow).value = "°C"
+
             val data = repository.getWeatherForCity(city)
             _weather.value = data
-            (temperatureCelsius as MutableStateFlow).value = data?.temperature?.let { fahrenheitToCelsius(it) }
-            (feelsLikeCelsius as MutableStateFlow).value = data?.feelsLike?.let { fahrenheitToCelsius(it) }
-            (temperatureUnit as MutableStateFlow).value = "°C"
+            temperatureCelsius.value = data?.temperature?.let { fahrenheitToCelsius(it) }
+            feelsLikeCelsius.value = data?.feelsLike?.let { fahrenheitToCelsius(it) }
+            temperatureUnit.value = "°C"
         }
     }
 }

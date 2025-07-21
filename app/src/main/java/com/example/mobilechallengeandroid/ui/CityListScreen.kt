@@ -138,7 +138,7 @@ fun CityListContent(
                 checked = showOnlyFavorites,
                 onCheckedChange = onShowOnlyFavoritesChange
             )
-            Text("Solo favoritos")
+            Text("Favorites only")
         }
         Spacer(modifier = Modifier.height(16.dp))
         LazyColumn(modifier = Modifier.fillMaxSize()) {
