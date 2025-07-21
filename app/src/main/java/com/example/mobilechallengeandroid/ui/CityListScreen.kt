@@ -121,8 +121,6 @@ fun CityListContent(
     onFavoriteClick: (Long) -> Unit,
     onDetailsClick: (City) -> Unit,
 ) {
-    val configuration = LocalConfiguration.current
-
     Column(modifier = Modifier.padding(8.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             OutlinedTextField(
@@ -168,6 +166,12 @@ fun CityListContent(
                         } else {
                             Icon(Icons.Outlined.FavoriteBorder, contentDescription = "Not favorite")
                         }
+                    }
+                    Button(
+                        onClick = { onDetailsClick(city) },
+                        modifier = Modifier.padding(end = 8.dp)
+                    ) {
+                        Text("Info")
                     }
                 }
                 HorizontalDivider()

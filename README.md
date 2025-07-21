@@ -11,8 +11,8 @@
 - [ OK ] Each city cell shows name, country, and coordinates.
 - [ OK ] Allow marking/unmarking as favorite.
 - [ OK ] On tap, navigate the map to the city coordinates.
-- [ ] Button to open a city information screen.
-- [ ] Create an information screen with additional data.
+- [ OK ] Button to open a city information screen.
+- [ OK ] Create an information screen with additional data.
 - [ ] Organize information for best user experience.
 - [ OK ] Dynamic UI: separate screens in portrait, single screen in landscape
 - [ OK ] Remember favorites between app launches.

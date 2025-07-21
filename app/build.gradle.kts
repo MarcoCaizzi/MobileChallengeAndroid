@@ -1,4 +1,6 @@
+import org.gradle.kotlin.dsl.kotlin
 import java.util.Properties
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     alias(libs.plugins.android.application)
@@ -14,10 +16,10 @@ android {
         compose = true
     }
 
-    // Leer la API Key desde local.properties
     val properties = Properties()
     properties.load(rootProject.file("local.properties").inputStream())
-    val apiKey = properties["MAPS_API_KEY"] as String
+    val mapsApiKey = properties["MAPS_API_KEY"] as String
+    val weatherApiKey = properties["WEATHER_API_KEY"] as String
 
     defaultConfig {
         applicationId = "com.example.mobilechallengeandroid"
@@ -28,8 +30,8 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-        // Inyectar la clave como recurso
-        resValue("string", "google_maps_key", apiKey)
+        resValue("string", "google_maps_key", mapsApiKey)
+        resValue("string", "weather_api_key", weatherApiKey)
     }
 
     buildTypes {
@@ -45,8 +47,10 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
-    kotlinOptions {
-        jvmTarget = "11"
+    kotlin {
+        compilerOptions {
+            jvmTarget.set(JvmTarget.JVM_11)
+        }
     }
 }
 

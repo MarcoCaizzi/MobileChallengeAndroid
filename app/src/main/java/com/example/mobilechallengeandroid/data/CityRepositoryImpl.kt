@@ -11,6 +11,7 @@ import okhttp3.Request
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import androidx.core.content.edit
+import com.example.mobilechallengeandroid.R
 
 class CityRepositoryImpl(private val context: Context) : CityRepository {
     private val PREFS_NAME = "city_prefs"
@@ -24,6 +25,7 @@ class CityRepositoryImpl(private val context: Context) : CityRepository {
         const val CITIES_JSON_URL =
             "https://gist.githubusercontent.com/hernan-uala/dce8843a8edbe0b0018b32e137bc2b3a/raw/0996accf70cb0ca0e16f9a99e0ee185fafca7af1/cities.json"
     }
+
     override suspend fun getFavoriteIds(): Set<Long> {
         return prefs.getStringSet(FAVORITES_KEY, emptySet())
             ?.mapNotNull { it.toLongOrNull() }
@@ -32,11 +34,6 @@ class CityRepositoryImpl(private val context: Context) : CityRepository {
 
     private fun saveFavoriteIds(ids: Set<Long>) {
         prefs.edit { putStringSet(FAVORITES_KEY, ids.map { it.toString() }.toSet()) }
-    }
-
-    override suspend fun getFavorites(): List<City> {
-        val favoriteIds = getFavoriteIds()
-        return cities.filter { favoriteIds.contains(it.id) }
     }
 
     override suspend fun toggleFavorite(cityId: Long) {
@@ -72,6 +69,37 @@ class CityRepositoryImpl(private val context: Context) : CityRepository {
             }.sortedWith(compareBy({ it.name.lowercase() }, { it.country.lowercase() }))
             cities
         }
+
+    override suspend fun getWeatherForCity(city: City): WeatherData? = withContext(Dispatchers.IO) {
+        val apiKey = context.getString(R.string.weather_api_key)
+        val url =
+            "https://weather.googleapis.com/v1/currentConditions:lookup?key=$apiKey&location.latitude=${city.coord.lat}&location.longitude=${city.coord.lon}&unitsSystem=IMPERIAL"
+        val client = OkHttpClient()
+        val request = Request.Builder().url(url).build()
+        val response = try {
+            client.newCall(request).execute()
+        } catch (_: Exception) {
+            null
+        }
+        if (response != null && response.isSuccessful) {
+            val body = response.body.string()
+            body.let {
+                val json = org.json.JSONObject(it)
+                WeatherData(
+                    description = json.optJSONObject("weatherCondition")
+                        ?.optJSONObject("description")?.optString("text"),
+                    temperature = json.optJSONObject("temperature")?.optDouble("degrees"),
+                    temperatureUnit = json.optJSONObject("temperature")?.optString("unit"),
+                    feelsLike = json.optJSONObject("feelsLikeTemperature")?.optDouble("degrees"),
+                    humidity = json.optInt("relativeHumidity"),
+                    rainProbability = json.optJSONObject("precipitation")
+                        ?.optJSONObject("probability")?.optInt("percent")
+                )
+            }
+        } else {
+            null
+        }
+    }
 
 
     private data class CityJson(
