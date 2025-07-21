@@ -1,5 +1,6 @@
-package com.example.mobilechallengeandroid.ui
+package com.example.mobilechallengeandroid.ui.screen
 
+import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.runtime.*
@@ -23,6 +24,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.compose.ui.Alignment
+import com.example.mobilechallengeandroid.ui.viewmodel.CityListViewModel
 
 @Preview(
     showBackground = true,
@@ -63,7 +65,7 @@ fun CityListScreen(
     val showOnlyFavorites by viewModel.showOnlyFavorites.collectAsState()
     val configuration = LocalConfiguration.current
     val isLandscape =
-        configuration.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE
+        configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
 
     var selectedCity by remember(cities) { mutableStateOf(cities.firstOrNull()) }
 

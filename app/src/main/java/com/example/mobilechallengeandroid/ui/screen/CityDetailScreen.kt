@@ -1,4 +1,4 @@
-package com.example.mobilechallengeandroid.ui
+package com.example.mobilechallengeandroid.ui.screen
 
 import androidx.compose.runtime.*
 import androidx.compose.material3.*
@@ -12,6 +12,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.ui.Alignment
 import coil.compose.AsyncImage
 import androidx.compose.ui.platform.LocalContext
+import com.example.mobilechallengeandroid.ui.viewmodel.CityDetailViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

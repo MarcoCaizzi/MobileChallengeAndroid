@@ -1,4 +1,4 @@
-package com.example.mobilechallengeandroid.ui
+package com.example.mobilechallengeandroid.ui.screen
 
 import android.content.res.Configuration
 import androidx.compose.runtime.Composable
@@ -9,6 +9,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.ui.Modifier
 import com.example.mobilechallengeandroid.data.City
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalConfiguration
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
@@ -43,6 +44,8 @@ fun CityMapScreen(city: City, onBack: () -> Unit) {
         val cameraPositionState = rememberCameraPositionState {
             position = CameraPosition.fromLatLngZoom(cityPosition, 10f)
         }
+        val markerState = remember { MarkerState(position = cityPosition) }
+
         GoogleMap(
             modifier = Modifier
                 .padding(padding)
@@ -50,7 +53,7 @@ fun CityMapScreen(city: City, onBack: () -> Unit) {
             cameraPositionState = cameraPositionState
         ) {
             Marker(
-                state = MarkerState(position = cityPosition),
+                state = markerState,
                 title = city.name,
                 snippet = city.country
             )

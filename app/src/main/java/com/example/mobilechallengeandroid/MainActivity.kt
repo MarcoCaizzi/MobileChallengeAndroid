@@ -5,12 +5,12 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.*
 import androidx.navigation.compose.*
-import com.example.mobilechallengeandroid.ui.CityListScreen
-import com.example.mobilechallengeandroid.ui.CityMapScreen
-import com.example.mobilechallengeandroid.ui.CityListViewModel
+import com.example.mobilechallengeandroid.ui.screen.CityListScreen
+import com.example.mobilechallengeandroid.ui.screen.CityMapScreen
+import com.example.mobilechallengeandroid.ui.viewmodel.CityListViewModel
 import com.example.mobilechallengeandroid.data.CityRepositoryImpl
-import com.example.mobilechallengeandroid.ui.CityDetailScreen
-import com.example.mobilechallengeandroid.ui.CityDetailViewModel
+import com.example.mobilechallengeandroid.ui.screen.CityDetailScreen
+import com.example.mobilechallengeandroid.ui.viewmodel.CityDetailViewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
