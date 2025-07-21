@@ -8,9 +8,8 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.mobilechallengeandroid.data.City
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.ui.Alignment
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -27,7 +26,6 @@ fun CityDetailScreen(
     val feelsLikeC by viewModel.feelsLikeCelsius.collectAsState()
     val tempUnit by viewModel.temperatureUnit.collectAsState()
 
-
     Scaffold(
         topBar = {
             TopAppBar(
@@ -40,34 +38,47 @@ fun CityDetailScreen(
             )
         }
     ) { padding ->
-        Column(
+        Box(
             modifier = Modifier
                 .padding(padding)
-                .padding(16.dp)
-                .fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+                .fillMaxSize(),
+            contentAlignment = Alignment.TopCenter
         ) {
-            Card {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    Text("General information", fontWeight = FontWeight.Bold, fontSize = 18.sp)
-                    Spacer(Modifier.height(8.dp))
-                    Text("ID: ${city.id}")
-                    Text("Country: ${city.country}")
-                    Text("Coordinates: Lat ${city.coord.lat}, Lon ${city.coord.lon}")
-                }
-            }
-            Card {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    Text("Current weather", fontWeight = FontWeight.Bold, fontSize = 18.sp)
-                    Spacer(Modifier.height(8.dp))
-                    if (weather != null) {
-                        Text("Weather description: ${weather!!.description}")
-                        Text("Temperature: ${tempC?.let { "%.1f".format(it) } ?: "N/A"} $tempUnit")
-                        Text("Wind chill: ${feelsLikeC?.let { "%.1f".format(it) } ?: "N/A"} $tempUnit")
-                        Text("Humidity: ${weather!!.humidity}%")
-                        Text("Chance of rain: ${weather!!.rainProbability ?: "N/A"}%")
-                    } else {
-                        Text("Charging...")
+            if (weather == null) {
+                CircularProgressIndicator()
+            } else {
+                Column(
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(24.dp)
+                ) {
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        elevation = CardDefaults.cardElevation(4.dp)
+                    ) {
+                        Column(modifier = Modifier.padding(16.dp)) {
+                            Text("City", style = MaterialTheme.typography.titleMedium)
+                            Spacer(Modifier.height(8.dp))
+                            Text("Name: ${city.name}")
+                            Text("Country: ${city.country}")
+                            Text("Latitude: ${city.coord.lat}")
+                            Text("Longitude: ${city.coord.lon}")
+                        }
+                    }
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        elevation = CardDefaults.cardElevation(4.dp)
+                    ) {
+                        Column(modifier = Modifier.padding(16.dp)) {
+                            Text("Weather", style = MaterialTheme.typography.titleMedium)
+                            Spacer(Modifier.height(8.dp))
+                            Text("Description: ${weather?.description ?: "N/A"}")
+                            Text("Temperature: ${tempC?.let { "%.1f".format(it) } ?: "N/A"} $tempUnit")
+                            Text("Feels like: ${feelsLikeC?.let { "%.1f".format(it) } ?: "N/A"} $tempUnit")
+                            Text("Humidity: ${weather?.humidity ?: "N/A"}%")
+                            Text("Rain probability: ${weather?.rainProbability ?: "N/A"}%")
+                        }
                     }
                 }
             }
