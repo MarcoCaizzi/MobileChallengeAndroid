@@ -10,6 +10,8 @@ import androidx.compose.ui.unit.dp
 import com.example.mobilechallengeandroid.data.City
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.ui.Alignment
+import coil.compose.AsyncImage
+import androidx.compose.ui.platform.LocalContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -18,9 +20,13 @@ fun CityDetailScreen(
     onBack: () -> Unit,
     viewModel: CityDetailViewModel = viewModel()
 ) {
+    val context = LocalContext.current
     LaunchedEffect(city) {
+        viewModel.loadMapUrl(context, city)
         viewModel.loadWeather(city)
     }
+
+    val mapUrl by viewModel.mapUrl.collectAsState()
     val weather by viewModel.weather.collectAsState()
     val tempC by viewModel.temperatureCelsius.collectAsState()
     val feelsLikeC by viewModel.feelsLikeCelsius.collectAsState()
@@ -78,6 +84,20 @@ fun CityDetailScreen(
                             Text("Feels like: ${feelsLikeC?.let { "%.1f".format(it) } ?: "N/A"} $tempUnit")
                             Text("Humidity: ${weather?.humidity ?: "N/A"}%")
                             Text("Rain probability: ${weather?.rainProbability ?: "N/A"}%")
+                        }
+                    }
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        elevation = CardDefaults.cardElevation(4.dp)
+                    ) {
+                        Column(modifier = Modifier.padding(16.dp)) {
+                            AsyncImage(
+                                model = mapUrl,
+                                contentDescription = "Map image",
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(180.dp)
+                            )
                         }
                     }
                 }
