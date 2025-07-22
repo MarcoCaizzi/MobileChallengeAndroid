@@ -22,6 +22,9 @@ import com.example.mobilechallengeandroid.ui.viewmodel.CityListViewModel
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.padding
 
 @Composable
 fun CityListScreen(
@@ -31,18 +34,24 @@ fun CityListScreen(
     isLandscape: Boolean = false,
 ) {
     val selectedCityId by viewModel.selectedCityId.collectAsState()
-    CityListContent(
-        viewModel = viewModel,
-        onCityClick = onCityClick,
-        onFavoriteClick = { viewModel.onFavoriteClick(it) },
-        onDetailsClick = { city ->
-            if (!isLandscape) {
-                navController.navigate("cityData/${city.id}")
-            }
-        },
-        isLandscape = isLandscape,
-        selectedCityId = selectedCityId
-    )
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(WindowInsets.systemBars.asPaddingValues())
+    ) {
+        CityListContent(
+            viewModel = viewModel,
+            onCityClick = onCityClick,
+            onFavoriteClick = { viewModel.onFavoriteClick(it) },
+            onDetailsClick = { city ->
+                if (!isLandscape) {
+                    navController.navigate("cityData/${city.id}")
+                }
+            },
+            isLandscape = isLandscape,
+            selectedCityId = selectedCityId
+        )
+    }
 }
 
 @Composable
