@@ -18,16 +18,19 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import org.json.JSONObject
 import java.io.File
 import java.io.FileInputStream
 import java.io.InputStreamReader
 import javax.inject.Inject
+import com.example.mobilechallengeandroid.data.remote.WeatherApi
+import com.example.mobilechallengeandroid.data.remote.FileDownloadApi
+import com.example.mobilechallengeandroid.data.remote.toWeatherData
 
 class CityRepositoryImpl @Inject constructor(
-    private val context: Context, private val cityDao: CityDao
+    private val context: Context,
+    private val cityDao: CityDao,
+    private val weatherApi: WeatherApi,
+    private val fileDownloadApi: FileDownloadApi
 ) : CityRepository {
     private val PREFS_NAME = "city_prefs"
     private val FAVORITES_KEY = "favorite_ids"
@@ -55,45 +58,36 @@ class CityRepositoryImpl @Inject constructor(
         saveFavoriteIds(ids)
     }
 
-    override suspend fun downloadAndFetchCities(jsonUrl: String): List<City> =
-        withContext(Dispatchers.IO) {
-            val fileName = "cities.json"
-            val file = File(context.filesDir, fileName)
+    override suspend fun downloadAndFetchCities(jsonUrl: String): List<City> = withContext(Dispatchers.IO) {
+        val fileName = "cities.json"
+        val file = File(context.filesDir, fileName)
 
-            try {
-                if (!file.exists()) {
-                    val client = OkHttpClient()
-                    val request = Request.Builder().url(jsonUrl).build()
-                    val response = client.newCall(request).execute()
-
-                    if (!response.isSuccessful) {
-                        throw Exception("Error downloading cities: ${response.code}")
-                    }
-
-                    val body = response.body.string()
-                    file.writeText(body)
-                }
-
-                val reader = InputStreamReader(FileInputStream(file))
-                val type = object : TypeToken<List<CityJson>>() {}.type
-                val cityJsonList: List<CityJson> = Gson().fromJson(reader, type)
-                reader.close()
-
-                val cityEntities = cityJsonList.map {
-                    CityEntity(
-                        id = it._id,
-                        name = it.name,
-                        country = it.country,
-                        coord = Coord(it.coord.lon, it.coord.lat)
-                    )
-                }
-                cityDao.insertAll(cityEntities)
-                cityEntities.map { City(it.id, it.name, it.country, it.coord) }
-            } catch (e: Exception) {
-                e.printStackTrace()
-                emptyList()
+        try {
+            if (!file.exists()) {
+                val responseBody = fileDownloadApi.downloadFile(jsonUrl)
+                file.writeBytes(responseBody.bytes())
             }
+
+            val reader = InputStreamReader(FileInputStream(file))
+            val type = object : TypeToken<List<CityJson>>() {}.type
+            val cityJsonList: List<CityJson> = Gson().fromJson(reader, type)
+            reader.close()
+
+            val cityEntities = cityJsonList.map {
+                CityEntity(
+                    id = it._id,
+                    name = it.name,
+                    country = it.country,
+                    coord = Coord(it.coord.lon, it.coord.lat)
+                )
+            }
+            cityDao.insertAll(cityEntities)
+            cityEntities.map { City(it.id, it.name, it.country, it.coord) }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            emptyList()
         }
+    }
 
     override suspend fun searchCitiesByPrefix(prefix: String): List<City> =
         withContext(Dispatchers.IO) {
@@ -110,31 +104,13 @@ class CityRepositoryImpl @Inject constructor(
 
     override suspend fun getWeatherForCity(city: City): WeatherData? = withContext(Dispatchers.IO) {
         val apiKey = context.getString(R.string.weather_api_key)
-        val url =
-            "https://weather.googleapis.com/v1/currentConditions:lookup?key=$apiKey&location.latitude=${city.coord.lat}&location.longitude=${city.coord.lon}&unitsSystem=IMPERIAL"
-        val client = OkHttpClient()
-        val request = Request.Builder().url(url).build()
-        val response = try {
-            client.newCall(request).execute()
+        return@withContext try {
+            weatherApi.getWeather(
+                apiKey = apiKey,
+                lat = city.coord.lat,
+                lon = city.coord.lon
+            ).toWeatherData()
         } catch (_: Exception) {
-            null
-        }
-        if (response != null && response.isSuccessful) {
-            val body = response.body.string()
-            body.let {
-                val json = JSONObject(it)
-                WeatherData(
-                    description = json.optJSONObject("weatherCondition")
-                        ?.optJSONObject("description")?.optString("text"),
-                    temperature = json.optJSONObject("temperature")?.optDouble("degrees"),
-                    temperatureUnit = json.optJSONObject("temperature")?.optString("unit"),
-                    feelsLike = json.optJSONObject("feelsLikeTemperature")?.optDouble("degrees"),
-                    humidity = json.optInt("relativeHumidity"),
-                    rainProbability = json.optJSONObject("precipitation")
-                        ?.optJSONObject("probability")?.optInt("percent")
-                )
-            }
-        } else {
             null
         }
     }

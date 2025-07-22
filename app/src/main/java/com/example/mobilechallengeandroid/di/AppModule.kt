@@ -4,6 +4,8 @@ import android.content.Context
 import com.example.mobilechallengeandroid.domain.CityRepository
 import com.example.mobilechallengeandroid.domain.CityRepositoryImpl
 import com.example.mobilechallengeandroid.data.local.CityDao
+import com.example.mobilechallengeandroid.data.remote.WeatherApi
+import com.example.mobilechallengeandroid.data.remote.FileDownloadApi
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -19,8 +21,10 @@ object AppModule {
     @Singleton
     fun provideCityRepository(
         @ApplicationContext context: Context,
-        cityDao: CityDao
+        cityDao: CityDao,
+        weatherApi: WeatherApi,
+        fileDownloadApi: FileDownloadApi
     ): CityRepository {
-        return CityRepositoryImpl(context, cityDao)
+        return CityRepositoryImpl(context, cityDao, weatherApi, fileDownloadApi)
     }
 }

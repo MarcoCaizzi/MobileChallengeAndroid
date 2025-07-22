@@ -93,11 +93,13 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 
-    // JSON y Red
+    // JSON & Networking
     implementation(libs.gson)
     implementation(libs.okhttp)
+    implementation(libs.retrofit)
+    implementation(libs.converter.gson)
 
-    // Maps y Coil
+    // Maps & Coil
     implementation(libs.maps.compose)
     implementation(libs.coil.compose)
     implementation(libs.play.services.maps)
@@ -107,13 +109,13 @@ dependencies {
     kapt(libs.hilt.compiler)
     implementation(libs.androidx.hilt.navigation.compose)
 
-    // Room
+    // Room Database
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
     implementation(libs.androidx.room.paging)
     ksp(libs.androidx.room.compiler)
 
-    // Otros
+    // Others
     implementation(libs.javapoet)
     implementation(libs.androidx.paging.runtime)
     implementation(libs.androidx.paging.compose)
