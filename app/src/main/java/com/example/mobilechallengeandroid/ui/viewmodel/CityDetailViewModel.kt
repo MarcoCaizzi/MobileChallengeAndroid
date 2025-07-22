@@ -2,47 +2,49 @@ package com.example.mobilechallengeandroid.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.mobilechallengeandroid.data.City
-import com.example.mobilechallengeandroid.data.CityRepository
-import com.example.mobilechallengeandroid.data.WeatherData
+import com.example.mobilechallengeandroid.data.model.City
+import com.example.mobilechallengeandroid.domain.CityRepository
+import com.example.mobilechallengeandroid.data.model.WeatherData
 import com.example.mobilechallengeandroid.utils.fahrenheitToCelsius
 import com.example.mobilechallengeandroid.utils.getStaticMapUrl
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import android.content.Context
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
+import dagger.hilt.android.qualifiers.ApplicationContext
 
-class CityDetailViewModel(private val repository: CityRepository) : ViewModel() {
-    private val _weather = MutableStateFlow<WeatherData?>(null)
-    val weather: StateFlow<WeatherData?> = _weather
 
-    private val _temperatureCelsius = MutableStateFlow<Double?>(null)
-    val temperatureCelsius: StateFlow<Double?> = _temperatureCelsius
+data class CityDetailState(
+    val weather: WeatherData? = null,
+    val temperatureCelsius: Double? = null,
+    val feelsLikeCelsius: Double? = null,
+    val temperatureUnit: String = "°C",
+    val mapUrl: String? = null,
+    val isLoading: Boolean = false
+)
 
-    private val _feelsLikeCelsius = MutableStateFlow<Double?>(null)
-    val feelsLikeCelsius: StateFlow<Double?> = _feelsLikeCelsius
+@HiltViewModel
+class CityDetailViewModel @Inject constructor(
+    @param:ApplicationContext private val context: Context,
+    private val repository: CityRepository
+) : ViewModel() {
+    private val _state = MutableStateFlow(CityDetailState())
+    val state: StateFlow<CityDetailState> = _state
 
-    private val _temperatureUnit = MutableStateFlow("°C")
-    val temperatureUnit: StateFlow<String> = _temperatureUnit
-
-    private val _mapUrl = MutableStateFlow<String?>(null)
-    val mapUrl: StateFlow<String?> = _mapUrl
-
-    fun loadMapUrl(context: Context, city: City) {
-        _mapUrl.value = getStaticMapUrl(context, city)
-    }
-
-    fun loadWeather(city: City) {
+    fun loadCityDetails(city: City) {
         viewModelScope.launch {
-            _weather.value = null
-            _temperatureCelsius.value = null
-            _feelsLikeCelsius.value = null
-            _temperatureUnit.value = "°C"
-
-            val data = repository.getWeatherForCity(city)
-            _weather.value = data
-            _temperatureCelsius.value = data?.temperature?.let { fahrenheitToCelsius(it) }
-            _feelsLikeCelsius.value = data?.feelsLike?.let { fahrenheitToCelsius(it) }
+            _state.value = _state.value.copy(isLoading = true)
+            val mapUrl = getStaticMapUrl(context,city)
+            val weather = repository.getWeatherForCity(city)
+            _state.value = _state.value.copy(
+                weather = weather,
+                temperatureCelsius = weather?.temperature?.let { fahrenheitToCelsius(it) },
+                feelsLikeCelsius = weather?.feelsLike?.let { fahrenheitToCelsius(it) },
+                mapUrl = mapUrl,
+                isLoading = false
+            )
         }
     }
 }

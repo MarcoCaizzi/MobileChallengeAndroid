@@ -2,7 +2,7 @@ package com.example.mobilechallengeandroid.utils
 
 import android.content.Context
 import com.example.mobilechallengeandroid.R
-import com.example.mobilechallengeandroid.data.City
+import com.example.mobilechallengeandroid.data.model.City
 
 fun getStaticMapUrl(
     context: Context,

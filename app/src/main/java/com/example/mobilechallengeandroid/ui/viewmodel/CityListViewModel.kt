@@ -2,25 +2,24 @@ package com.example.mobilechallengeandroid.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.mobilechallengeandroid.data.City
-import com.example.mobilechallengeandroid.data.CityRepository
-import com.example.mobilechallengeandroid.data.CityRepositoryImpl
-import com.example.mobilechallengeandroid.data.CityTrie
+import com.example.mobilechallengeandroid.data.model.City
+import com.example.mobilechallengeandroid.domain.CityRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import androidx.paging.PagingData
+import androidx.paging.cachedIn
+import com.example.mobilechallengeandroid.domain.CityRepositoryImpl
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 
-class CityListViewModel(
+@HiltViewModel
+class CityListViewModel @Inject constructor(
     private val repository: CityRepository
 ) : ViewModel() {
 
     private val _filter = MutableStateFlow("")
     val filter: StateFlow<String> = _filter
-
-    private val _cities = MutableStateFlow<List<City>>(emptyList())
-    val cities: StateFlow<List<City>> = _cities
-
-    private var allCities: List<City> = emptyList()
-    private var cityTrie: CityTrie? = null
 
     private val _favoriteIds = MutableStateFlow<Set<Long>>(emptySet())
     val favoriteIds: StateFlow<Set<Long>> = _favoriteIds
@@ -28,47 +27,65 @@ class CityListViewModel(
     private val _showOnlyFavorites = MutableStateFlow(false)
     val showOnlyFavorites: StateFlow<Boolean> = _showOnlyFavorites
 
+    private val _selectedCityId = MutableStateFlow<Long?>(null)
+    val selectedCityId: StateFlow<Long?> = _selectedCityId
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val pagedCities: Flow<PagingData<City>> = combine(
+        filter,
+        favoriteIds,
+        showOnlyFavorites
+    ) { filter, favoriteIds, showOnlyFavorites ->
+        Triple(filter, favoriteIds, showOnlyFavorites)
+    }.flatMapLatest { (filter, favoriteIds, showOnlyFavorites) ->
+        if (showOnlyFavorites) {
+            flow {
+                val cities = repository.getCitiesByIds(favoriteIds.toList())
+                    .filter { it.name.startsWith(filter, ignoreCase = true) }
+                    .sortedBy { it.name }
+                emit(PagingData.from(cities))
+            }
+        } else {
+            repository.getPagedCities(filter.trim())
+        }
+    }.cachedIn(viewModelScope)
+
     init {
         viewModelScope.launch {
-            allCities = repository.downloadAndFetchCities(CityRepositoryImpl.CITIES_JSON_URL)
-            cityTrie = CityTrie().apply {
-                allCities.forEach { insert(it) }
+            if (repository.searchCitiesByPrefix("").isEmpty()) {
+                repository.downloadAndFetchCities(CityRepositoryImpl.CITIES_JSON_URL)
             }
             _favoriteIds.value = repository.getFavoriteIds()
-            updateCities()
         }
-    }
-
-    fun onShowOnlyFavoritesChange(show: Boolean) {
-        _showOnlyFavorites.value = show
-        updateCities()
-    }
-
-    private fun updateCities() {
-        val prefix = _filter.value.trim().lowercase()
-        val filtered = if (prefix.isEmpty()) {
-            allCities
-        } else {
-            cityTrie?.search(prefix) ?: emptyList()
-        }
-        val result = if (_showOnlyFavorites.value) {
-            filtered.filter { _favoriteIds.value.contains(it.id) }
-        } else {
-            filtered
-        }
-        _cities.value = result.sortedWith(compareBy({ it.name.lowercase() }, { it.country.lowercase() }))
     }
 
     fun onFilterChange(newFilter: String) {
         _filter.value = newFilter
-        updateCities()
+    }
+
+    fun onShowOnlyFavoritesChange(show: Boolean) {
+        _showOnlyFavorites.value = show
     }
 
     fun onFavoriteClick(cityId: Long) {
         viewModelScope.launch {
             repository.toggleFavorite(cityId)
             _favoriteIds.value = repository.getFavoriteIds()
-            updateCities()
         }
+    }
+
+    fun selectCity(cityId: Long) {
+        _selectedCityId.value = cityId
+    }
+
+//    fun onFirstPagedCityLoaded(city: City?) {
+//        if (_selectedCityId.value == null && city != null) {
+//            _selectedCityId.value = city.id
+//            _firstPagedCity.value = city
+//        }
+//    }
+
+    suspend fun getCityById(cityId: Long): City? {
+        return repository.getCityById(cityId)
     }
 }

@@ -7,36 +7,37 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.example.mobilechallengeandroid.data.City
-import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.mobilechallengeandroid.data.model.City
 import androidx.compose.ui.Alignment
 import coil.compose.AsyncImage
-import androidx.compose.ui.platform.LocalContext
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.mobilechallengeandroid.ui.viewmodel.CityDetailViewModel
+import com.example.mobilechallengeandroid.ui.viewmodel.CityListViewModel
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CityDetailScreen(
-    city: City,
+    cityId: Long,
     onBack: () -> Unit,
-    viewModel: CityDetailViewModel = viewModel()
+    cityListViewModel: CityListViewModel = hiltViewModel(),
+    viewModel: CityDetailViewModel = hiltViewModel()
 ) {
-    val context = LocalContext.current
-    LaunchedEffect(city) {
-        viewModel.loadMapUrl(context, city)
-        viewModel.loadWeather(city)
+
+    val city by produceState<City?>(initialValue = null, cityId) {
+        value = cityListViewModel.getCityById(cityId)
     }
 
-    val mapUrl by viewModel.mapUrl.collectAsState()
-    val weather by viewModel.weather.collectAsState()
-    val tempC by viewModel.temperatureCelsius.collectAsState()
-    val feelsLikeC by viewModel.feelsLikeCelsius.collectAsState()
-    val tempUnit by viewModel.temperatureUnit.collectAsState()
+    LaunchedEffect(city) {
+        city?.let { viewModel.loadCityDetails(it) }
+    }
+
+    val state by viewModel.state.collectAsState()
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("${city.name}, ${city.country}") },
+                title = { Text(city?.let { "${it.name}, ${it.country}" } ?: "Detailers") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
@@ -51,27 +52,23 @@ fun CityDetailScreen(
                 .fillMaxSize(),
             contentAlignment = Alignment.TopCenter
         ) {
-            if (weather == null) {
+            if (state.isLoading) {
                 CircularProgressIndicator()
-            } else {
+            } else if (city != null) {
                 Column(
                     modifier = Modifier
-                        .padding(16.dp)
-                        .fillMaxWidth(),
-                    verticalArrangement = Arrangement.spacedBy(24.dp)
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        elevation = CardDefaults.cardElevation(4.dp)
-                    ) {
-                        Column(modifier = Modifier.padding(16.dp)) {
-                            Text("City", style = MaterialTheme.typography.titleMedium)
-                            Spacer(Modifier.height(8.dp))
-                            Text("Name: ${city.name}")
-                            Text("Country: ${city.country}")
-                            Text("Latitude: ${city.coord.lat}")
-                            Text("Longitude: ${city.coord.lon}")
-                        }
+                    state.mapUrl?.let { url ->
+                        AsyncImage(
+                            model = url,
+                            contentDescription = "Mapa de la ciudad",
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(200.dp)
+                        )
                     }
                     Card(
                         modifier = Modifier.fillMaxWidth(),
@@ -79,12 +76,31 @@ fun CityDetailScreen(
                     ) {
                         Column(modifier = Modifier.padding(16.dp)) {
                             Text("Weather", style = MaterialTheme.typography.titleMedium)
-                            Spacer(Modifier.height(8.dp))
-                            Text("Description: ${weather?.description ?: "N/A"}")
-                            Text("Temperature: ${tempC?.let { "%.1f".format(it) } ?: "N/A"} $tempUnit")
-                            Text("Feels like: ${feelsLikeC?.let { "%.1f".format(it) } ?: "N/A"} $tempUnit")
-                            Text("Humidity: ${weather?.humidity ?: "N/A"}%")
-                            Text("Rain probability: ${weather?.rainProbability ?: "N/A"}%")
+                            Text("Description: ${state.weather?.description ?: "N/A"}")
+                            Text(
+                                "Temperature: ${
+                                    state.temperatureCelsius?.let {
+                                        String.format(
+                                            Locale.getDefault(),
+                                            "%.1f",
+                                            it
+                                        )
+                                    } ?: "N/A"
+                                }${state.temperatureUnit}"
+                            )
+                            Text(
+                                "Feels like: ${
+                                    state.feelsLikeCelsius?.let {
+                                        String.format(
+                                            Locale.getDefault(),
+                                            "%.1f",
+                                            it
+                                        )
+                                    } ?: "N/A"
+                                }${state.temperatureUnit}"
+                            )
+                            Text("Humidity: ${state.weather?.humidity ?: "N/A"}%")
+                            Text("Rain probability:: ${state.weather?.rainProbability ?: "N/A"}%")
                         }
                     }
                     Card(
@@ -92,13 +108,9 @@ fun CityDetailScreen(
                         elevation = CardDefaults.cardElevation(4.dp)
                     ) {
                         Column(modifier = Modifier.padding(16.dp)) {
-                            AsyncImage(
-                                model = mapUrl,
-                                contentDescription = "Map image",
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(180.dp)
-                            )
+                            Text("Coordenadas", style = MaterialTheme.typography.titleMedium)
+                            Text("Latitud: ${city!!.coord.lat}")
+                            Text("Longitud: ${city!!.coord.lon}")
                         }
                     }
                 }
