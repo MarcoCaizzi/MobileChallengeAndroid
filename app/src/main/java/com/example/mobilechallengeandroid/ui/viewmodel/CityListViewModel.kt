@@ -10,7 +10,6 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
-import com.example.mobilechallengeandroid.domain.CityRepositoryImpl
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 @HiltViewModel
@@ -53,7 +52,7 @@ class CityListViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             if (repository.searchCitiesByPrefix("").isEmpty()) {
-                repository.downloadAndFetchCities(CityRepositoryImpl.CITIES_JSON_URL)
+                repository.downloadAndFetchCities()
             }
             _favoriteIds.value = repository.getFavoriteIds()
         }
@@ -77,13 +76,6 @@ class CityListViewModel @Inject constructor(
     fun selectCity(cityId: Long) {
         _selectedCityId.value = cityId
     }
-
-//    fun onFirstPagedCityLoaded(city: City?) {
-//        if (_selectedCityId.value == null && city != null) {
-//            _selectedCityId.value = city.id
-//            _firstPagedCity.value = city
-//        }
-//    }
 
     suspend fun getCityById(cityId: Long): City? {
         return repository.getCityById(cityId)

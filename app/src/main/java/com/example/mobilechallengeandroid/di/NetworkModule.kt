@@ -1,7 +1,7 @@
 package com.example.mobilechallengeandroid.di
 
-import com.example.mobilechallengeandroid.data.remote.WeatherApi
-import com.example.mobilechallengeandroid.data.remote.FileDownloadApi
+import com.example.mobilechallengeandroid.data.remote.weather.WeatherApi
+import com.example.mobilechallengeandroid.data.remote.file.FileDownloadApi
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -21,23 +21,19 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit =
+    fun provideWeatherApi(okHttpClient: OkHttpClient): WeatherApi =
         Retrofit.Builder()
             .baseUrl("https://weather.googleapis.com/")
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
-
-    @Provides
-    @Singleton
-    fun provideWeatherApi(retrofit: Retrofit): WeatherApi =
-        retrofit.create(WeatherApi::class.java)
+            .create(WeatherApi::class.java)
 
     @Provides
     @Singleton
     fun provideFileDownloadApi(okHttpClient: OkHttpClient): FileDownloadApi =
         Retrofit.Builder()
-            .baseUrl("https://gist.githubusercontent.com/") // baseUrl dummy
+            .baseUrl("https://gist.githubusercontent.com/hernan-uala/dce8843a8edbe0b0018b32e137bc2b3a/raw/0996accf70cb0ca0e16f9a99e0ee185fafca7af1/")
             .client(okHttpClient)
             .build()
             .create(FileDownloadApi::class.java)

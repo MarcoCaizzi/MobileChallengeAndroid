@@ -22,9 +22,10 @@ import java.io.File
 import java.io.FileInputStream
 import java.io.InputStreamReader
 import javax.inject.Inject
-import com.example.mobilechallengeandroid.data.remote.WeatherApi
-import com.example.mobilechallengeandroid.data.remote.FileDownloadApi
-import com.example.mobilechallengeandroid.data.remote.toWeatherData
+import com.example.mobilechallengeandroid.data.remote.weather.WeatherApi
+import com.example.mobilechallengeandroid.data.remote.file.FileDownloadApi
+import com.example.mobilechallengeandroid.data.remote.weather.toWeatherData
+import com.example.mobilechallengeandroid.data.remote.file.CityJson
 
 class CityRepositoryImpl @Inject constructor(
     private val context: Context,
@@ -36,12 +37,6 @@ class CityRepositoryImpl @Inject constructor(
     private val FAVORITES_KEY = "favorite_ids"
 
     private val prefs get() = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-
-
-    companion object {
-        const val CITIES_JSON_URL =
-            "https://gist.githubusercontent.com/hernan-uala/dce8843a8edbe0b0018b32e137bc2b3a/raw/0996accf70cb0ca0e16f9a99e0ee185fafca7af1/cities.json"
-    }
 
     override suspend fun getFavoriteIds(): Set<Long> {
         return prefs.getStringSet(FAVORITES_KEY, emptySet())?.mapNotNull { it.toLongOrNull() }
@@ -58,13 +53,14 @@ class CityRepositoryImpl @Inject constructor(
         saveFavoriteIds(ids)
     }
 
-    override suspend fun downloadAndFetchCities(jsonUrl: String): List<City> = withContext(Dispatchers.IO) {
+    override suspend fun downloadAndFetchCities(): List<City> = withContext(Dispatchers.IO) {
         val fileName = "cities.json"
         val file = File(context.filesDir, fileName)
 
         try {
             if (!file.exists()) {
-                val responseBody = fileDownloadApi.downloadFile(jsonUrl)
+                val filePath = "cities.json"
+                val responseBody = fileDownloadApi.downloadFile(filePath)
                 file.writeBytes(responseBody.bytes())
             }
 
@@ -110,7 +106,7 @@ class CityRepositoryImpl @Inject constructor(
                 lat = city.coord.lat,
                 lon = city.coord.lon
             ).toWeatherData()
-        } catch (_: Exception) {
+        } catch (_ : Exception) {
             null
         }
     }
@@ -127,13 +123,4 @@ class CityRepositoryImpl @Inject constructor(
             }
         }
     }
-
-
-    private data class CityJson(
-        val _id: Long, val name: String, val country: String, val coord: CoordJson
-    )
-
-    private data class CoordJson(
-        val lon: Double, val lat: Double
-    )
 }

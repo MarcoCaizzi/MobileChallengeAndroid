@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface CityRepository {
     suspend fun toggleFavorite(cityId: Long)
-    suspend fun downloadAndFetchCities(jsonUrl: String): List<City>
+    suspend fun downloadAndFetchCities(): List<City>
     suspend fun getFavoriteIds(): Set<Long>
     suspend fun getWeatherForCity(city: City): WeatherData?
     suspend fun searchCitiesByPrefix(prefix: String): List<City>

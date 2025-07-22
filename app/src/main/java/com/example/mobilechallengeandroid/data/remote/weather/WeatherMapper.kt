@@ -1,8 +1,8 @@
-package com.example.mobilechallengeandroid.data.remote
+package com.example.mobilechallengeandroid.data.remote.weather
 
 import com.example.mobilechallengeandroid.data.model.WeatherData
 
-fun WeatherApiResponse.toWeatherData(): WeatherData = WeatherData(
+fun WeatherDto.toWeatherData(): WeatherData = WeatherData(
     description = weatherCondition?.description?.text,
     temperature = temperature?.degrees,
     temperatureUnit = temperature?.unit,

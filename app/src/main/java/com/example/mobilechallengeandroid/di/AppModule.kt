@@ -4,8 +4,8 @@ import android.content.Context
 import com.example.mobilechallengeandroid.domain.CityRepository
 import com.example.mobilechallengeandroid.domain.CityRepositoryImpl
 import com.example.mobilechallengeandroid.data.local.CityDao
-import com.example.mobilechallengeandroid.data.remote.WeatherApi
-import com.example.mobilechallengeandroid.data.remote.FileDownloadApi
+import com.example.mobilechallengeandroid.data.remote.weather.WeatherApi
+import com.example.mobilechallengeandroid.data.remote.file.FileDownloadApi
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

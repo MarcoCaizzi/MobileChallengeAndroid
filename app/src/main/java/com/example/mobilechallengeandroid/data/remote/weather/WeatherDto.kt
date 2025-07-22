@@ -1,6 +1,6 @@
-package com.example.mobilechallengeandroid.data.remote
+package com.example.mobilechallengeandroid.data.remote.weather
 
-data class WeatherApiResponse(
+data class WeatherDto(
     val weatherCondition: WeatherCondition?,
     val temperature: Temperature?,
     val feelsLikeTemperature: Temperature?,

@@ -1,4 +1,4 @@
-package com.example.mobilechallengeandroid.data.remote
+package com.example.mobilechallengeandroid.data.remote.weather
 
 import retrofit2.http.GET
 import retrofit2.http.Query
@@ -10,5 +10,5 @@ interface WeatherApi {
         @Query("location.latitude") lat: Double,
         @Query("location.longitude") lon: Double,
         @Query("unitsSystem") units: String = "IMPERIAL"
-    ): WeatherApiResponse
+    ): WeatherDto
 }
