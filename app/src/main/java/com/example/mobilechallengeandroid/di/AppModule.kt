@@ -5,7 +5,7 @@ import com.example.mobilechallengeandroid.domain.CityRepository
 import com.example.mobilechallengeandroid.domain.CityRepositoryImpl
 import com.example.mobilechallengeandroid.data.local.CityDao
 import com.example.mobilechallengeandroid.data.remote.weather.WeatherApi
-import com.example.mobilechallengeandroid.data.remote.file.FileDownloadApi
+import com.example.mobilechallengeandroid.data.remote.file.CityFileApi
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -23,8 +23,8 @@ object AppModule {
         @ApplicationContext context: Context,
         cityDao: CityDao,
         weatherApi: WeatherApi,
-        fileDownloadApi: FileDownloadApi
+        cityFileApi: CityFileApi
     ): CityRepository {
-        return CityRepositoryImpl(context, cityDao, weatherApi, fileDownloadApi)
+        return CityRepositoryImpl(context, cityDao, weatherApi, cityFileApi)
     }
 }

@@ -4,7 +4,7 @@ import okhttp3.ResponseBody
 import retrofit2.http.GET
 import retrofit2.http.Url
 
-interface FileDownloadApi {
+interface CityFileApi {
     @GET
     suspend fun downloadFile(@Url fileUrl: String= "cities.json"): ResponseBody
 }

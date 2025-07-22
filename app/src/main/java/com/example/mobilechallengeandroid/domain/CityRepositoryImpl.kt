@@ -23,7 +23,7 @@ import java.io.FileInputStream
 import java.io.InputStreamReader
 import javax.inject.Inject
 import com.example.mobilechallengeandroid.data.remote.weather.WeatherApi
-import com.example.mobilechallengeandroid.data.remote.file.FileDownloadApi
+import com.example.mobilechallengeandroid.data.remote.file.CityFileApi
 import com.example.mobilechallengeandroid.data.remote.weather.toWeatherData
 import com.example.mobilechallengeandroid.data.remote.file.CityJson
 
@@ -31,7 +31,7 @@ class CityRepositoryImpl @Inject constructor(
     private val context: Context,
     private val cityDao: CityDao,
     private val weatherApi: WeatherApi,
-    private val fileDownloadApi: FileDownloadApi
+    private val fileDownloadApi: CityFileApi
 ) : CityRepository {
     private val PREFS_NAME = "city_prefs"
     private val FAVORITES_KEY = "favorite_ids"
