@@ -2,7 +2,7 @@ package com.example.mobilechallengeandroid.di
 
 import android.content.Context
 import androidx.room.Room
-import com.example.mobilechallengeandroid.data.local.AppDatabase
+import com.example.mobilechallengeandroid.data.local.CityDatabase
 import com.example.mobilechallengeandroid.data.local.CityDao
 import dagger.Module
 import dagger.Provides
@@ -18,9 +18,9 @@ object DatabaseModule {
     @Singleton
     fun provideDatabase(
         @ApplicationContext appContext: Context
-    ): AppDatabase =
-        Room.databaseBuilder(appContext, AppDatabase::class.java, "cities.db").build()
+    ): CityDatabase =
+        Room.databaseBuilder(appContext, CityDatabase::class.java, "cities.db").build()
 
     @Provides
-    fun provideCityDao(db: AppDatabase): CityDao = db.cityDao()
+    fun provideCityDao(db: CityDatabase): CityDao = db.cityDao()
 }

@@ -98,6 +98,7 @@ dependencies {
     implementation(libs.androidx.runtime.android)
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.paging.common.android)
+    implementation(libs.androidx.junit.ktx)
 
     // Jetpack Compose
     val composeBom = platform("androidx.compose:compose-bom:2025.05.00")
