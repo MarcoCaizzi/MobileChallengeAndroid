@@ -16,8 +16,8 @@ import org.junit.Test
 import org.mockito.kotlin.*
 
 /**
- * Unit tests for [CityRepository] implementations.
- * Tests both favorite logic (with [FakeCityRepository]) and weather fetching (with [CityRepositoryImpl] and mocks).
+ * Unit and integration tests for [CityRepository] implementations.
+ * Covers favorite logic (with [FakeCityRepository]) and weather fetching (with [CityRepositoryImpl] and mocks).
  */
 class CityRepositoryTest {
     private lateinit var repository: CityRepository
@@ -33,10 +33,10 @@ class CityRepositoryTest {
     }
 
     /**
-     * Verifies that [toggleFavorite] adds and removes a city from favorites.
+     * Ensures that toggleFavorite adds and removes a city from favorites.
      */
     @Test
-    fun `toggleFavorite adds and removes favorites`() = runBlocking {
+    fun toggleFavorite_adds_and_removes_favorites() = runBlocking {
         val cityId = 1234L
         assertFalse(repository.getFavoriteIds().contains(cityId))
         repository.toggleFavorite(cityId)
@@ -46,20 +46,20 @@ class CityRepositoryTest {
     }
 
     /**
-     * Verifies that [getFavoriteIds] returns all current favorites.
+     * Ensures that getFavoriteIds returns all current favorites.
      */
     @Test
-    fun `getFavoriteIds returns all current favorites`() = runBlocking {
+    fun getFavoriteIds_returns_all_current_favorites() = runBlocking {
         val ids = listOf(1L, 2L, 3L)
         ids.forEach { repository.toggleFavorite(it) }
         assertEquals(ids.toSet(), repository.getFavoriteIds())
     }
 
     /**
-     * Verifies that toggling the same city multiple times works as expected.
+     * Ensures that toggling the same city multiple times works as expected.
      */
     @Test
-    fun `toggleFavorite toggling same city multiple times`() = runBlocking {
+    fun toggleFavorite_toggling_same_city_multiple_times() = runBlocking {
         val cityId = 42L
         repository.toggleFavorite(cityId) // add
         repository.toggleFavorite(cityId) // remove
@@ -70,10 +70,10 @@ class CityRepositoryTest {
     }
 
     /**
-     * Verifies that removing one favorite does not affect others.
+     * Ensures that removing one favorite does not affect others.
      */
     @Test
-    fun `toggleFavorite removes only the specified city`() = runBlocking {
+    fun toggleFavorite_removes_only_the_specified_city() = runBlocking {
         val ids = listOf(10L, 20L, 30L)
         ids.forEach { repository.toggleFavorite(it) }
         repository.toggleFavorite(20L) // remove 20L
@@ -81,10 +81,10 @@ class CityRepositoryTest {
     }
 
     /**
-     * Verifies that [getWeatherForCity] returns weather data on success.
+     * Ensures that getWeatherForCity returns weather data on success.
      */
     @Test
-    fun `getWeatherForCity returns weather data on success`() = runBlocking {
+    fun getWeatherForCity_returns_weather_data_on_success() = runBlocking {
         val context = mock<Context> {
             on { getString(any()) } doReturn "fake_api_key"
         }
@@ -111,10 +111,10 @@ class CityRepositoryTest {
     }
 
     /**
-     * Verifies that [getWeatherForCity] returns null if an exception occurs.
+     * Ensures that getWeatherForCity returns null if an exception occurs.
      */
     @Test
-    fun `getWeatherForCity returns null on exception`() = runBlocking {
+    fun getWeatherForCity_returns_null_on_exception() = runBlocking {
         val context = mock<Context> {
             on { getString(any()) } doReturn "fake_api_key"
         }
@@ -130,10 +130,10 @@ class CityRepositoryTest {
     }
 
     /**
-     * Verifies that [searchCitiesByPrefix] returns cities matching the prefix (case-insensitive).
+     * Ensures that searchCitiesByPrefix returns cities matching the prefix (case-insensitive).
      */
     @Test
-    fun `searchCitiesByPrefix returns matching cities`() = runBlocking {
+    fun searchCitiesByPrefix_returns_matching_cities() = runBlocking {
         repository = FakeCityRepository()
         val result = repository.searchCitiesByPrefix("Al")
         assertFalse(result.isEmpty())
@@ -142,54 +142,63 @@ class CityRepositoryTest {
     }
 
     /**
-     * Verifies that [searchCitiesByPrefix] returns an empty list if no city matches the prefix.
+     * Ensures that searchCitiesByPrefix returns an empty list if no city matches the prefix.
      */
     @Test
-    fun `searchCitiesByPrefix returns empty list if no match`() = runBlocking {
+    fun searchCitiesByPrefix_returns_empty_list_if_no_match() = runBlocking {
         repository = FakeCityRepository()
         val result = repository.searchCitiesByPrefix("Xy")
         assertTrue(result.isEmpty())
     }
 
     /**
-     * Verifies that [searchCitiesByPrefix] returns all cities if prefix is empty.
+     * Ensures that searchCitiesByPrefix returns all cities if prefix is empty.
      */
     @Test
-    fun `searchCitiesByPrefix returns all cities if prefix is empty`() = runBlocking {
+    fun searchCitiesByPrefix_returns_all_cities_if_prefix_is_empty() = runBlocking {
         repository = FakeCityRepository()
         val result = repository.searchCitiesByPrefix("")
         assertEquals(5, result.size)
     }
 
     /**
-     * Verifies that [searchCitiesByPrefix] returns cities starting with the given prefix,
+     * Ensures that searchCitiesByPrefix returns cities starting with the given prefix.
      */
     @Test
-    fun `searchCitiesByPrefix with prefix A returns all except Sydney`() = runBlocking {
+    fun searchCitiesByPrefix_with_prefix_A_returns_all_except_Sydney() = runBlocking {
         repository = FakeCityRepository()
         val result = repository.searchCitiesByPrefix("A")
         val names = result.map { it.name }
         assertEquals(setOf("Alabama", "Albuquerque", "Anaheim", "Arizona"), names.toSet())
     }
 
+    /**
+     * Ensures that searchCitiesByPrefix with prefix s returns only Sydney.
+     */
     @Test
-    fun `searchCitiesByPrefix with prefix s returns only Sydney`() = runBlocking {
+    fun searchCitiesByPrefix_with_prefix_s_returns_only_Sydney() = runBlocking {
         repository = FakeCityRepository()
         val result = repository.searchCitiesByPrefix("s")
         assertEquals(1, result.size)
         assertEquals("Sydney", result[0].name)
     }
 
+    /**
+     * Ensures that searchCitiesByPrefix with prefix Al returns Alabama and Albuquerque.
+     */
     @Test
-    fun `searchCitiesByPrefix with prefix Al returns Alabama and Albuquerque`() = runBlocking {
+    fun searchCitiesByPrefix_with_prefix_Al_returns_Alabama_and_Albuquerque() = runBlocking {
         repository = FakeCityRepository()
         val result = repository.searchCitiesByPrefix("Al")
         val names = result.map { it.name }
         assertEquals(setOf("Alabama", "Albuquerque"), names.toSet())
     }
 
+    /**
+     * Ensures that searchCitiesByPrefix with prefix Alb returns only Albuquerque.
+     */
     @Test
-    fun `searchCitiesByPrefix with prefix Alb returns only Albuquerque`() = runBlocking {
+    fun searchCitiesByPrefix_with_prefix_Alb_returns_only_Albuquerque() = runBlocking {
         repository = FakeCityRepository()
         val result = repository.searchCitiesByPrefix("Alb")
         assertEquals(1, result.size)
@@ -198,7 +207,7 @@ class CityRepositoryTest {
 }
 
 /**
- * Simple fake implementation of [CityRepository] for unit testing favorite logic.
+ * Simple fake implementation of [CityRepository] for unit testing favorite logic and search.
  */
 class FakeCityRepository : CityRepository {
     private val favorites = mutableSetOf<Long>()

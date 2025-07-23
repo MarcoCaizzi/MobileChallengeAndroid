@@ -73,6 +73,9 @@ class CityRepositoryImpl @Inject constructor(
         try {
             if (!file.exists() || !isValidJsonArray(file)) {
                 val responseBody = fileDownloadApi.downloadFile(fileName)
+                if (responseBody == null) {
+                    return@withContext emptyList()
+                }
                 file.writeBytes(responseBody.bytes())
             }
 
@@ -95,6 +98,9 @@ class CityRepositoryImpl @Inject constructor(
             e.printStackTrace()
             emptyList()
         } catch (e: Exception) {
+            e.printStackTrace()
+            emptyList()
+        } catch (e: Throwable) {
             e.printStackTrace()
             emptyList()
         }
