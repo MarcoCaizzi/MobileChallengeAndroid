@@ -1,4 +1,4 @@
-package com.example.mobilechallengeandroid
+package com.example.mobilechallengeandroid.ui
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity

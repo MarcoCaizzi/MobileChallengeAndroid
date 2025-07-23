@@ -36,15 +36,23 @@ class CityDetailViewModel @Inject constructor(
     fun loadCityDetails(city: City) {
         viewModelScope.launch {
             _state.value = _state.value.copy(isLoading = true)
-            val mapUrl = getStaticMapUrl(context,city)
-            val weather = repository.getWeatherForCity(city)
-            _state.value = _state.value.copy(
-                weather = weather,
-                temperatureCelsius = weather?.temperature?.let { fahrenheitToCelsius(it) },
-                feelsLikeCelsius = weather?.feelsLike?.let { fahrenheitToCelsius(it) },
-                mapUrl = mapUrl,
-                isLoading = false
-            )
+            try {
+                val mapUrl = getStaticMapUrl(context, city)
+                val weather = repository.getWeatherForCity(city)
+                _state.value = _state.value.copy(
+                    weather = weather,
+                    temperatureCelsius = weather?.temperature?.let { fahrenheitToCelsius(it) },
+                    feelsLikeCelsius = weather?.feelsLike?.let { fahrenheitToCelsius(it) },
+                    mapUrl = mapUrl,
+                    isLoading = false
+                )
+            } catch (e: Exception) {
+                e.printStackTrace()
+                _state.value = _state.value.copy(
+                    weather = null,
+                    isLoading = false
+                )
+            }
         }
     }
 }

@@ -1,6 +1,7 @@
 package com.example.mobilechallengeandroid.domain
 
 import android.content.Context
+import android.content.SharedPreferences
 import com.example.mobilechallengeandroid.data.local.CityDao
 import com.example.mobilechallengeandroid.data.remote.file.CityFileApi
 import com.example.mobilechallengeandroid.data.remote.weather.WeatherApi
@@ -8,7 +9,6 @@ import kotlinx.coroutines.runBlocking
 import okhttp3.ResponseBody
 import org.junit.Assert.*
 import org.junit.Before
-import org.junit.After
 import org.junit.Test
 import org.mockito.kotlin.*
 import java.io.File
@@ -18,6 +18,7 @@ import androidx.paging.testing.asSnapshot
 import com.example.mobilechallengeandroid.data.local.CityEntity
 import com.example.mobilechallengeandroid.data.model.City
 import com.example.mobilechallengeandroid.data.model.Coord
+
 
 class CityRepositoryImplTest {
     private lateinit var repository: CityRepositoryImpl
@@ -32,14 +33,29 @@ class CityRepositoryImplTest {
         cityDao = mock()
         weatherApi = mock()
         cityFileApi = mock()
-        whenever(context.filesDir).thenReturn(File("build/tmp"))
-        repository = CityRepositoryImpl(context, cityDao, weatherApi, cityFileApi)
-    }
 
-    @After
-    fun cleanup() {
-        val file = File(context.filesDir, "cities.json")
-        if (file.exists()) file.delete()
+        var favoriteIds: Set<String> = emptySet()
+
+        val editor = mock<SharedPreferences.Editor> {
+            on { putStringSet(any(), any()) } doAnswer { invocation ->
+                favoriteIds = invocation.getArgument<Set<String>>(1)
+                it
+            }
+            on { apply() } doAnswer { }
+            on { commit() } doReturn true
+        }
+
+        val sharedPrefs = mock<SharedPreferences> {
+            on { getStringSet(any(), any()) } doAnswer { invocation ->
+                favoriteIds.ifEmpty { invocation.getArgument(1) }
+            }
+            on { edit() } doReturn editor
+        }
+
+        whenever(context.filesDir).thenReturn(File("build/tmp"))
+        whenever(context.getSharedPreferences(any(), any())).thenReturn(sharedPrefs)
+
+        repository = CityRepositoryImpl(context, cityDao, weatherApi, cityFileApi)
     }
 
     /**
@@ -58,7 +74,7 @@ class CityRepositoryImplTest {
      * the method reads and returns the list of cities.
      */
     @Test
-    fun downloadAndFetchCities_reads_existing_and_returns_cities():Unit = runBlocking {
+    fun downloadAndFetchCities_reads_existing_and_returns_cities(): Unit = runBlocking {
         // Prepare a valid JSON file
         val fileDir = context.filesDir
         val file = File(fileDir, "cities.json")
@@ -79,7 +95,7 @@ class CityRepositoryImplTest {
      * the method returns an empty list.
      */
     @Test
-    fun downloadAndFetchCities_returns_empty_list_if_file_is_corrupted():Unit = runBlocking {
+    fun downloadAndFetchCities_returns_empty_list_if_file_is_corrupted(): Unit = runBlocking {
         val fileDir = context.filesDir
         val file = File(fileDir, "cities.json")
         file.writeText("corrupted content")
@@ -95,12 +111,13 @@ class CityRepositoryImplTest {
      * and the cities are inserted into the database and returned.
      */
     @Test
-    fun downloadAndFetchCities_downloads_parses_and_returns_cities():Unit = runBlocking {
+    fun downloadAndFetchCities_downloads_parses_and_returns_cities(): Unit = runBlocking {
         val fileDir = context.filesDir
         val file = File(fileDir, "cities.json")
         if (file.exists()) file.delete()
 
-        val json = "[{\"_id\":1,\"name\":\"Alabama\",\"country\":\"US\",\"coord\":{\"lon\":0.0,\"lat\":0.0}}]"
+        val json =
+            "[{\"_id\":1,\"name\":\"Alabama\",\"country\":\"US\",\"coord\":{\"lon\":0.0,\"lat\":0.0}}]"
         val responseBody = mock<ResponseBody> {
             on { bytes() } doReturn json.toByteArray()
         }
@@ -112,6 +129,16 @@ class CityRepositoryImplTest {
         assertEquals("Alabama", result[0].name)
 
         file.delete()
+    }
+
+    /**
+     * Ensures that downloadAndFetchCities returns an empty list when the file download fails.
+     */
+    @Test
+    fun downloadAndFetchCities_returns_empty_list_when_downloadFile_returns_null() = runBlocking {
+        whenever(cityFileApi.downloadFile(any())).thenReturn(null)
+        val result = repository.downloadAndFetchCities()
+        assertTrue(result.isEmpty())
     }
 
     /**
@@ -132,6 +159,7 @@ class CityRepositoryImplTest {
                     nextKey = null
                 )
             }
+
             override fun getRefreshKey(state: PagingState<Int, CityEntity>): Int? = null
         }
         whenever(cityDao.getCitiesPagingSource(prefix)).thenReturn(pagingSource)
@@ -183,5 +211,79 @@ class CityRepositoryImplTest {
 
         val result = repository.getCityById(99L)
         assertNull(result)
+    }
+
+    /**
+     * Ensures that toggleFavorite adds a city to favorites if not already present,
+     * and removes it if it is already a favorite.
+     */
+    @Test
+    fun saveFavoriteIds_persists_favorites_correctly() = runBlocking {
+        val cityId1 = 1L
+        val cityId2 = 2L
+        repository.toggleFavorite(cityId1)
+        repository.toggleFavorite(cityId2)
+        val favorites = repository.getFavoriteIds()
+        assertTrue(favorites.containsAll(listOf(cityId1, cityId2)))
+    }
+
+    /**
+     * Ensures that getFavoriteIds returns the correct set of favorite city IDs.
+     */
+    @Test
+    fun isValidJsonArray_returns_true_for_valid_json_array() {
+        val file = File(context.filesDir, "valid.json")
+        file.writeText("""[{"_id":1,"name":"A","country":"B","coord":{"lon":0.0,"lat":0.0}}]""")
+        val method =
+            CityRepositoryImpl::class.java.getDeclaredMethod("isValidJsonArray", File::class.java)
+        method.isAccessible = true
+        val result = method.invoke(repository, file) as Boolean
+        assertTrue(result)
+        file.delete()
+    }
+
+    /**
+     * Ensures that isValidJsonArray returns false for an empty file.
+     */
+    @Test
+    fun isValidJsonArray_returns_false_for_empty_file() {
+        val file = File(context.filesDir, "empty.json")
+        file.writeText("")
+        val method =
+            CityRepositoryImpl::class.java.getDeclaredMethod("isValidJsonArray", File::class.java)
+        method.isAccessible = true
+        val result = method.invoke(repository, file) as Boolean
+        assertFalse(result)
+        file.delete()
+    }
+
+    /**
+     * Ensures that isValidJsonArray returns false for a file that is not a valid JSON array.
+     */
+    @Test
+    fun isValidJsonArray_returns_false_for_corrupted_file() {
+        val file = File(context.filesDir, "corrupt.json")
+        file.writeText("not a json")
+        val method =
+            CityRepositoryImpl::class.java.getDeclaredMethod("isValidJsonArray", File::class.java)
+        method.isAccessible = true
+        val result = method.invoke(repository, file) as Boolean
+        assertFalse(result)
+        file.delete()
+    }
+
+    /**
+     * Ensures that isValidJsonArray returns false for a JSON object instead of an array.
+     */
+    @Test
+    fun isValidJsonArray_returns_false_for_json_object_instead_of_array() {
+        val file = File(context.filesDir, "object.json")
+        file.writeText("""{"_id":1,"name":"A"}""")
+        val method =
+            CityRepositoryImpl::class.java.getDeclaredMethod("isValidJsonArray", File::class.java)
+        method.isAccessible = true
+        val result = method.invoke(repository, file) as Boolean
+        assertFalse(result)
+        file.delete()
     }
 }
