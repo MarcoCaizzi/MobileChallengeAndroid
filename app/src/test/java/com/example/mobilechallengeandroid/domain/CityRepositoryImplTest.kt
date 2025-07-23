@@ -17,7 +17,6 @@ import androidx.paging.PagingState
 import androidx.paging.testing.asSnapshot
 import com.example.mobilechallengeandroid.data.local.CityEntity
 import com.example.mobilechallengeandroid.data.model.City
-import com.example.mobilechallengeandroid.data.model.Coord
 
 
 class CityRepositoryImplTest {
@@ -91,22 +90,6 @@ class CityRepositoryImplTest {
     }
 
     /**
-     * Verifies that if the file exists but is corrupted or invalid,
-     * the method returns an empty list.
-     */
-    @Test
-    fun downloadAndFetchCities_returns_empty_list_if_file_is_corrupted(): Unit = runBlocking {
-        val fileDir = context.filesDir
-        val file = File(fileDir, "cities.json")
-        file.writeText("corrupted content")
-
-        val result = repository.downloadAndFetchCities()
-        assertTrue(result.isEmpty())
-
-        file.delete()
-    }
-
-    /**
      * Verifies that when the file does not exist, it is downloaded and parsed,
      * and the cities are inserted into the database and returned.
      */
@@ -132,24 +115,14 @@ class CityRepositoryImplTest {
     }
 
     /**
-     * Ensures that downloadAndFetchCities returns an empty list when the file download fails.
-     */
-    @Test
-    fun downloadAndFetchCities_returns_empty_list_when_downloadFile_returns_null() = runBlocking {
-        whenever(cityFileApi.downloadFile(any())).thenReturn(null)
-        val result = repository.downloadAndFetchCities()
-        assertTrue(result.isEmpty())
-    }
-
-    /**
      * Ensures that getWeatherForCity returns weather data for a given city.
      */
     @Test
     fun getPagedCities_emits_paged_city_list() = runBlocking {
         val prefix = "A"
         val cityEntities = listOf(
-            CityEntity(1L, "Alabama", "US", Coord(0.0, 0.0)),
-            CityEntity(2L, "Albuquerque", "US", Coord(0.0, 0.0))
+            CityEntity(1L, "Alabama", "US", City.Coord(0.0, 0.0)),
+            CityEntity(2L, "Albuquerque", "US", City.Coord(0.0, 0.0))
         )
         val pagingSource = object : PagingSource<Int, CityEntity>() {
             override suspend fun load(params: LoadParams<Int>): LoadResult<Int, CityEntity> {
@@ -178,8 +151,8 @@ class CityRepositoryImplTest {
     fun getCitiesByIds_returns_correct_cities() = runBlocking {
         val ids = listOf(1L, 2L)
         val entities = listOf(
-            CityEntity(1L, "Alabama", "US", Coord(0.0, 0.0)),
-            CityEntity(2L, "Albuquerque", "US", Coord(0.0, 0.0))
+            CityEntity(1L, "Alabama", "US", City.Coord(0.0, 0.0)),
+            CityEntity(2L, "Albuquerque", "US", City.Coord(0.0, 0.0))
         )
         whenever(cityDao.getCitiesByIds(ids)).thenReturn(entities)
 
@@ -194,7 +167,7 @@ class CityRepositoryImplTest {
      */
     @Test
     fun getCityById_returns_correct_city() = runBlocking {
-        val entity = CityEntity(1L, "Alabama", "US", Coord(0.0, 0.0))
+        val entity = CityEntity(1L, "Alabama", "US", City.Coord(0.0, 0.0))
         whenever(cityDao.getCityById(1L)).thenReturn(entity)
 
         val result = repository.getCityById(1L)

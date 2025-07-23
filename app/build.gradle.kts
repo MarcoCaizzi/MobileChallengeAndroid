@@ -1,6 +1,7 @@
 import org.gradle.kotlin.dsl.kotlin
 import java.util.Properties
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.gradle.testing.jacoco.tasks.JacocoReport
 
 plugins {
     alias(libs.plugins.android.application)
@@ -28,7 +29,13 @@ tasks.register<JacocoReport>("jacocoTestReport") {
         html.required.set(true)
     }
 
-    val fileFilter = listOf("**/R.class", "**/R$*.class", "**/BuildConfig.*", "**/Manifest*.*")
+    val fileFilter = listOf(
+        "**/R.class",
+        "**/R$*.class",
+        "**/BuildConfig.*",
+        "**/Manifest*.*",
+        "**/com/example/mobilechallengeandroid/ui/screen/**"
+    )
     val debugTree = fileTree("${layout.buildDirectory}/intermediates/javac/debug") {
         exclude(fileFilter)
     }

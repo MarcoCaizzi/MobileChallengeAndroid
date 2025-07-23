@@ -4,7 +4,6 @@ import android.content.Context
 import androidx.paging.PagingData
 import com.example.mobilechallengeandroid.data.local.CityDao
 import com.example.mobilechallengeandroid.data.model.City
-import com.example.mobilechallengeandroid.data.model.Coord
 import com.example.mobilechallengeandroid.data.model.WeatherData
 import com.example.mobilechallengeandroid.data.remote.file.CityFileApi
 import com.example.mobilechallengeandroid.data.remote.weather.*
@@ -92,7 +91,7 @@ class CityRepositoryTest {
         val cityFileApi = mock<CityFileApi>()
         val cityRepository = CityRepositoryImpl(context, cityDao, weatherApi, cityFileApi)
 
-        val city = City(1L, "TestCity", "TC", Coord(1.0, 2.0))
+        val city = City(1L, "TestCity", "TC", City.Coord(1.0, 2.0))
         val weatherDto = WeatherDto(
             weatherCondition = WeatherConditionDto(DescriptionDto("Sunny")),
             temperature = TemperatureDto(75.0, "F"),
@@ -122,7 +121,7 @@ class CityRepositoryTest {
         val cityFileApi = mock<CityFileApi>()
         val cityRepository = CityRepositoryImpl(context, cityDao, weatherApi, cityFileApi)
 
-        val city = City(1L, "TestCity", "TC", Coord(1.0, 2.0))
+        val city = City(1L, "TestCity", "TC", City.Coord(1.0, 2.0))
         whenever(weatherApi.getWeather(any(), any(), any(), any())).thenThrow(RuntimeException("API error"))
 
         val result = cityRepository.getWeatherForCity(city)
@@ -212,11 +211,11 @@ class CityRepositoryTest {
 class FakeCityRepository : CityRepository {
     private val favorites = mutableSetOf<Long>()
     private val cities = listOf(
-        City(1L, "Alabama", "US", Coord(0.0, 0.0)),
-        City(2L, "Albuquerque", "US", Coord(0.0, 0.0)),
-        City(3L, "Anaheim", "US", Coord(0.0, 0.0)),
-        City(4L, "Arizona", "US", Coord(0.0, 0.0)),
-        City(5L, "Sydney", "AU", Coord(0.0, 0.0))
+        City(1L, "Alabama", "US", City.Coord(0.0, 0.0)),
+        City(2L, "Albuquerque", "US", City.Coord(0.0, 0.0)),
+        City(3L, "Anaheim", "US", City.Coord(0.0, 0.0)),
+        City(4L, "Arizona", "US", City.Coord(0.0, 0.0)),
+        City(5L, "Sydney", "AU", City.Coord(0.0, 0.0))
     )
 
     override suspend fun toggleFavorite(cityId: Long) {

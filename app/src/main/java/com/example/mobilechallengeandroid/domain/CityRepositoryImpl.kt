@@ -11,7 +11,6 @@ import com.example.mobilechallengeandroid.data.model.WeatherData
 import com.example.mobilechallengeandroid.data.local.CityDao
 import com.example.mobilechallengeandroid.data.local.CityEntity
 import com.example.mobilechallengeandroid.data.model.City
-import com.example.mobilechallengeandroid.data.model.Coord
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.Dispatchers
@@ -73,9 +72,6 @@ class CityRepositoryImpl @Inject constructor(
         try {
             if (!file.exists() || !isValidJsonArray(file)) {
                 val responseBody = fileDownloadApi.downloadFile(fileName)
-                if (responseBody == null) {
-                    return@withContext emptyList()
-                }
                 file.writeBytes(responseBody.bytes())
             }
 
@@ -89,7 +85,10 @@ class CityRepositoryImpl @Inject constructor(
                     id = it._id,
                     name = it.name,
                     country = it.country,
-                    coord = Coord(it.coord.lon, it.coord.lat)
+                    coord = City.Coord(
+                        lat = it.coord.lat,
+                        lon = it.coord.lon
+                    )
                 )
             }
             cityDao.insertAll(cityEntities)

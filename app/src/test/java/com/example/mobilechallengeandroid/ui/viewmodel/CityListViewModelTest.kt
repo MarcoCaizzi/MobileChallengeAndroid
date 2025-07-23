@@ -2,7 +2,6 @@ package com.example.mobilechallengeandroid.ui.viewmodel
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.example.mobilechallengeandroid.data.model.City
-import com.example.mobilechallengeandroid.data.model.Coord
 import com.example.mobilechallengeandroid.domain.CityRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -28,11 +27,11 @@ class CityListViewModelTest {
     private lateinit var viewModel: CityListViewModel
 
     private val cities = listOf(
-        City(1L, "Alabama", "US", Coord(0.0, 0.0)),
-        City(2L, "Albuquerque", "US", Coord(0.0, 0.0)),
-        City(3L, "Anaheim", "US", Coord(0.0, 0.0)),
-        City(4L, "Arizona", "US", Coord(0.0, 0.0)),
-        City(5L, "Sydney", "AU", Coord(0.0, 0.0))
+        City(1L, "Alabama", "US", City.Coord(0.0, 0.0)),
+        City(2L, "Albuquerque", "US", City.Coord(0.0, 0.0)),
+        City(3L, "Anaheim", "US", City.Coord(0.0, 0.0)),
+        City(4L, "Arizona", "US", City.Coord(0.0, 0.0)),
+        City(5L, "Sydney", "AU", City.Coord(0.0, 0.0))
     )
 
     @Before

@@ -64,7 +64,7 @@ fun CityDetailScreen(
                     state.mapUrl?.let { url ->
                         AsyncImage(
                             model = url,
-                            contentDescription = "Mapa de la ciudad",
+                            contentDescription = "Maps",
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(200.dp)
@@ -108,9 +108,9 @@ fun CityDetailScreen(
                         elevation = CardDefaults.cardElevation(4.dp)
                     ) {
                         Column(modifier = Modifier.padding(16.dp)) {
-                            Text("Coordenadas", style = MaterialTheme.typography.titleMedium)
-                            Text("Latitud: ${city!!.coord.lat}")
-                            Text("Longitud: ${city!!.coord.lon}")
+                            Text("Coordinates", style = MaterialTheme.typography.titleMedium)
+                            Text("Latitude: ${city!!.coord.lat}")
+                            Text("Longitude: ${city!!.coord.lon}")
                         }
                     }
                 }

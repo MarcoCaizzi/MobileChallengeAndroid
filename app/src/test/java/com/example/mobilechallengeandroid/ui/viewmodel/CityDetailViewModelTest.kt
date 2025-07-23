@@ -3,7 +3,6 @@ package com.example.mobilechallengeandroid.ui.viewmodel
 import android.content.Context
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.example.mobilechallengeandroid.data.model.City
-import com.example.mobilechallengeandroid.data.model.Coord
 import com.example.mobilechallengeandroid.data.model.WeatherData
 import com.example.mobilechallengeandroid.domain.CityRepository
 import kotlinx.coroutines.Dispatchers
@@ -29,7 +28,7 @@ class CityDetailViewModelTest {
     private lateinit var context: Context
     private lateinit var viewModel: CityDetailViewModel
 
-    private val city = City(1L, "Alabama", "US", Coord(0.0, 0.0))
+    private val city = City(1L, "Alabama", "US", City.Coord(0.0, 0.0))
     private val weather = WeatherData(
         description = "Sunny",
         temperature = 75.0,
