@@ -90,8 +90,14 @@ dependencies {
 
     // Unit Tests
     testImplementation(libs.junit)
+    testImplementation(libs.androidx.core.testing)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+
+    // Mockito
+    testImplementation(libs.mockito.core)
+    testImplementation(libs.mockito.inline)
+    testImplementation(libs.mockito.kotlin)
 
     // JSON & Networking
     implementation(libs.gson)
@@ -119,4 +125,5 @@ dependencies {
     implementation(libs.javapoet)
     implementation(libs.androidx.paging.runtime)
     implementation(libs.androidx.paging.compose)
+
 }

@@ -26,6 +26,8 @@ import com.example.mobilechallengeandroid.data.remote.weather.WeatherApi
 import com.example.mobilechallengeandroid.data.remote.file.CityFileApi
 import com.example.mobilechallengeandroid.data.remote.weather.toWeatherData
 import com.example.mobilechallengeandroid.data.remote.file.CityJson
+import com.google.gson.stream.JsonReader
+import com.google.gson.JsonSyntaxException
 
 class CityRepositoryImpl @Inject constructor(
     private val context: Context,
@@ -53,14 +55,24 @@ class CityRepositoryImpl @Inject constructor(
         saveFavoriteIds(ids)
     }
 
+    private fun isValidJsonArray(file: File): Boolean {
+        return try {
+            val reader = JsonReader(InputStreamReader(FileInputStream(file)))
+            reader.beginArray()
+            reader.close()
+            true
+        } catch (_: Exception) {
+            false
+        }
+    }
+
     override suspend fun downloadAndFetchCities(): List<City> = withContext(Dispatchers.IO) {
         val fileName = "cities.json"
         val file = File(context.filesDir, fileName)
 
         try {
-            if (!file.exists()) {
-                val filePath = "cities.json"
-                val responseBody = fileDownloadApi.downloadFile(filePath)
+            if (!file.exists() || !isValidJsonArray(file)) {
+                val responseBody = fileDownloadApi.downloadFile(fileName)
                 file.writeBytes(responseBody.bytes())
             }
 
@@ -79,48 +91,51 @@ class CityRepositoryImpl @Inject constructor(
             }
             cityDao.insertAll(cityEntities)
             cityEntities.map { City(it.id, it.name, it.country, it.coord) }
+        } catch (e: JsonSyntaxException) {
+            e.printStackTrace()
+            emptyList()
         } catch (e: Exception) {
             e.printStackTrace()
             emptyList()
         }
     }
 
-    override suspend fun searchCitiesByPrefix(prefix: String): List<City> =
-        withContext(Dispatchers.IO) {
-            cityDao.searchByName(prefix).map { City(it.id, it.name, it.country, it.coord) }
+override suspend fun searchCitiesByPrefix(prefix: String): List<City> =
+    withContext(Dispatchers.IO) {
+        cityDao.searchByName(prefix).map { City(it.id, it.name, it.country, it.coord) }
+    }
+
+override suspend fun getCitiesByIds(ids: List<Long>): List<City> {
+    return cityDao.getCitiesByIds(ids).map { City(it.id, it.name, it.country, it.coord) }
+}
+
+override suspend fun getCityById(id: Long): City? {
+    return cityDao.getCityById(id)?.let { City(it.id, it.name, it.country, it.coord) }
+}
+
+override suspend fun getWeatherForCity(city: City): WeatherData? = withContext(Dispatchers.IO) {
+    val apiKey = context.getString(R.string.weather_api_key)
+    return@withContext try {
+        weatherApi.getWeather(
+            apiKey = apiKey,
+            lat = city.coord.lat,
+            lon = city.coord.lon
+        ).toWeatherData()
+    } catch (_: Exception) {
+        null
+    }
+}
+
+override fun getPagedCities(prefix: String): Flow<PagingData<City>> {
+    return Pager(
+        config = PagingConfig(
+            pageSize = 20, enablePlaceholders = false
+        ),
+        pagingSourceFactory = { cityDao.getCitiesPagingSource(prefix) }
+    ).flow.map { pagingData ->
+        pagingData.map { entity ->
+            City(entity.id, entity.name, entity.country, entity.coord)
         }
-
-    override suspend fun getCitiesByIds(ids: List<Long>): List<City> {
-        return cityDao.getCitiesByIds(ids).map { City(it.id, it.name, it.country, it.coord) }
     }
-
-    override suspend fun getCityById(id: Long): City? {
-        return cityDao.getCityById(id)?.let { City(it.id, it.name, it.country, it.coord) }
-    }
-
-    override suspend fun getWeatherForCity(city: City): WeatherData? = withContext(Dispatchers.IO) {
-        val apiKey = context.getString(R.string.weather_api_key)
-        return@withContext try {
-            weatherApi.getWeather(
-                apiKey = apiKey,
-                lat = city.coord.lat,
-                lon = city.coord.lon
-            ).toWeatherData()
-        } catch (_ : Exception) {
-            null
-        }
-    }
-
-    override fun getPagedCities(prefix: String): Flow<PagingData<City>> {
-        return Pager(
-            config = PagingConfig(
-                pageSize = 20, enablePlaceholders = false
-            ),
-            pagingSourceFactory = { cityDao.getCitiesPagingSource(prefix) }
-        ).flow.map { pagingData ->
-            pagingData.map { entity ->
-                City(entity.id, entity.name, entity.country, entity.coord)
-            }
-        }
-    }
+}
 }
