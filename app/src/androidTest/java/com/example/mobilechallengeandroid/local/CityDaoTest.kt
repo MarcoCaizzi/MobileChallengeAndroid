@@ -6,7 +6,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.example.mobilechallengeandroid.data.local.CityDao
 import com.example.mobilechallengeandroid.data.local.CityDatabase
 import com.example.mobilechallengeandroid.data.local.CityEntity
-import com.example.mobilechallengeandroid.data.model.Coord
+import com.example.mobilechallengeandroid.data.model.City
 import kotlinx.coroutines.runBlocking
 import org.junit.*
 import org.junit.runner.RunWith
@@ -34,7 +34,7 @@ class CityDaoTest {
 
     @Test
     fun insertAndSearchByName_returnsCorrectCities() = runBlocking {
-        val city = CityEntity(1L, "Alabama", "US", Coord(0.0, 0.0))
+        val city = CityEntity(1L, "Alabama", "US", City.Coord(0.0, 0.0))
         dao.insertAll(listOf(city))
         val result = dao.searchByName("Ala")
         Assert.assertEquals(1, result.size)
