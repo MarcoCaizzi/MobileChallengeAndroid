@@ -1,11 +1,15 @@
 package com.example.mobilechallengeandroid.di
 
 import android.content.Context
-import com.example.mobilechallengeandroid.domain.CityRepository
-import com.example.mobilechallengeandroid.domain.CityRepositoryImpl
-import com.example.mobilechallengeandroid.data.local.CityDao
-import com.example.mobilechallengeandroid.data.remote.weather.WeatherApi
-import com.example.mobilechallengeandroid.data.remote.file.CityFileApi
+import com.example.mobilechallengeandroid.domain.repository.CityListRepository
+import com.example.mobilechallengeandroid.data.repository.CityListRepositoryImpl
+import com.example.mobilechallengeandroid.data.database.dao.CityDao
+import com.example.mobilechallengeandroid.data.network.file.CityListService
+import com.example.mobilechallengeandroid.data.network.weather.WeatherService
+import com.example.mobilechallengeandroid.domain.repository.FavoriteRepository
+import com.example.mobilechallengeandroid.data.repository.FavoriteRepositoryImpl
+import com.example.mobilechallengeandroid.domain.repository.WeatherRepository
+import com.example.mobilechallengeandroid.data.repository.WeatherRepositoryImpl
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -20,11 +24,26 @@ object AppModule {
     @Provides
     @Singleton
     fun provideCityRepository(
-        @ApplicationContext context: Context,
         cityDao: CityDao,
-        weatherApi: WeatherApi,
-        cityFileApi: CityFileApi
-    ): CityRepository {
-        return CityRepositoryImpl(context, cityDao, weatherApi, cityFileApi)
+        cityListService: CityListService
+    ): CityListRepository {
+        return CityListRepositoryImpl(cityDao,cityListService )
+    }
+
+    @Provides
+    @Singleton
+    fun provideFavoriteRepository(
+        @ApplicationContext context: Context
+    ): FavoriteRepository {
+        return FavoriteRepositoryImpl(context)
+    }
+
+    @Provides
+    @Singleton
+    fun provideWeatherRepository(
+        weatherService: WeatherService,
+        @ApplicationContext context: Context
+    ): WeatherRepository {
+        return WeatherRepositoryImpl(weatherService, context)
     }
 }
